@@ -3,11 +3,14 @@ import { getProjects } from "../services/projectService";
 
 function Home() {
     const [featuredProjects, setFeaturedProjects] = useState([]);
-    // State to track if the resume has been downloaded
     const [isDownloaded, setIsDownloaded] = useState(false);
     const [isDownloading, setIsDownloading] = useState(false);
+    const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
 
     useEffect(() => {
+        const handleResize = () => setIsMobile(window.innerWidth <= 768);
+        window.addEventListener("resize", handleResize);
+
         const loadFeatured = async () => {
             try {
                 const data = await getProjects();
@@ -16,10 +19,11 @@ function Home() {
                 console.error("Error loading featured projects:", error);
             }
         };
+
         loadFeatured();
+        return () => window.removeEventListener("resize", handleResize);
     }, []);
 
-    // Function to handle secure download pipeline and auto-hide button
     const handleDownloadResume = async (e) => {
         e.preventDefault();
         if (isDownloading) return;
@@ -27,29 +31,20 @@ function Home() {
         setIsDownloading(true);
         try {
             const response = await fetch("http://localhost:8080/api/resume/download");
-            
-            if (!response.ok) {
-                throw new Error("Download pipeline rejected by Spring Boot backend.");
-            }
+            if (!response.ok) throw new Error("Download pipeline rejected.");
 
-            // Convert data stream to a blob
             const blob = await response.blob();
             const downloadUrl = window.URL.createObjectURL(blob);
             
-            // Temporary virtual link generation for forced system download
             const virtualLink = document.createElement("a");
             virtualLink.href = downloadUrl;
-            virtualLink.setAttribute("download", "Sanjay_Resume.pdf"); // Default dynamic filename
+            virtualLink.setAttribute("download", "Sanjay_Resume.pdf");
             document.body.appendChild(virtualLink);
             virtualLink.click();
             
-            // Clean up virtual link from DOM structure
             virtualLink.remove();
             window.URL.revokeObjectURL(downloadUrl);
-
-            // SUCCESS: Change state to hide the button permanently for this session
             setIsDownloaded(true);
-
         } catch (error) {
             console.error("Blob Streaming Error:", error);
             alert("Could not download resume. Please ensure file exists in backend.");
@@ -61,23 +56,28 @@ function Home() {
     return (
         <div style={styles.pageWrapper}>
             {/* HERO SECTION */}
-            <section style={styles.heroSection}>
-                <div style={styles.heroContainer}>
+            <section style={{
+                ...styles.heroSection,
+                padding: isMobile ? "4rem 1rem" : "6rem 2rem"
+            }}>
+                <div style={{...styles.heroContainer, textAlign: isMobile ? "center" : "left"}}>
                     <span style={styles.badgeText}>Available for Opportunities</span>
-                    <h1 style={styles.mainTitle}>
+                    <h1 style={{...styles.mainTitle, fontSize: isMobile ? "2.5rem" : "3.5rem"}}>
                         Hi, I am Sanjay<span style={{ color: "#0066cc" }}>.</span>
                     </h1>
-                    <p style={styles.bioText}>
+                    <p style={{...styles.bioText, fontSize: isMobile ? "1.1rem" : "1.25rem"}}>
                         A passionate software engineer focused on building robust backend systems, distributed architectures, and clean, high-performance web applications. I turn complex database problems into elegant, scalable digital experiences.
                     </p>
-                    <div style={styles.ctaGroup}>
+                    <div style={{
+                        ...styles.ctaGroup,
+                        flexDirection: isMobile ? "column" : "row",
+                        alignItems: isMobile ? "stretch" : "center"
+                    }}>
                         <a href="/projects" style={styles.primaryBtn}>Explore My Work</a>
                         
-                        {/* CONDITIONAL RENDERING: Button will disappear completely if isDownloaded is true */}
                         {!isDownloaded && (
                             <button 
-                                onClick={handleDownloadResume} 
-                                disabled={isDownloading}
+                                onClick={handleDownloadResume} disabled={isDownloading}
                                 style={{
                                     ...styles.resumeBtn,
                                     backgroundColor: isDownloading ? "#86868b" : "#0066cc",
@@ -94,10 +94,13 @@ function Home() {
             </section>
 
             {/* CORE EXPERTISE MATRICES */}
-            <section style={styles.skillsSection}>
+            <section style={{...styles.skillsSection, padding: isMobile ? "3rem 1rem" : "5rem 2rem"}}>
                 <div style={styles.container}>
-                    <h2 style={styles.sectionHeading}>Core Competencies</h2>
-                    <div style={styles.skillsGrid}>
+                    <h2 style={{...styles.sectionHeading, textAlign: isMobile ? "center" : "left"}}>Core Competencies</h2>
+                    <div style={{
+                        ...styles.skillsGrid,
+                        gridTemplateColumns: isMobile ? "1fr" : "repeat(auto-fit, minmax(280px, 1fr))"
+                    }}>
                         <div style={styles.skillCard}>
                             <div style={styles.skillIcon}>⚙️</div>
                             <h3 style={styles.skillTitle}>Backend Engineering</h3>
@@ -119,13 +122,21 @@ function Home() {
 
             {/* LIVE SYSTEM HIGHLIGHTS */}
             {featuredProjects.length > 0 && (
-                <section style={styles.featuredSection}>
+                <section style={{...styles.featuredSection, padding: isMobile ? "3rem 1rem" : "5rem 2rem"}}>
                     <div style={styles.container}>
-                        <div style={styles.sectionHeaderRow}>
+                        <div style={{
+                            ...styles.sectionHeaderRow,
+                            flexDirection: isMobile ? "column" : "row",
+                            gap: "1rem",
+                            textAlign: isMobile ? "center" : "left"
+                        }}>
                             <h2 style={styles.sectionHeading}>Featured Builds</h2>
                             <a href="/projects" style={styles.textLink}>See all developments ↗</a>
                         </div>
-                        <div style={styles.projectsGrid}>
+                        <div style={{
+                            ...styles.projectsGrid,
+                            gridTemplateColumns: isMobile ? "1fr" : "1fr 1fr"
+                        }}>
                             {featuredProjects.map((project) => (
                                 <div key={project.id} style={styles.projectCard}>
                                     <div>
@@ -156,190 +167,172 @@ const styles = {
     container: {
         maxWidth: "1200px",
         margin: "0 auto",
-        padding: "0 2rem",
         boxSizing: "border-box",
     },
     heroSection: {
         width: "100%",
-        padding: "8rem 2rem 6rem 2rem",
-        boxSizing: "border-box",
         display: "flex",
         justifyContent: "center",
-        alignItems: "center",
-        textAlign: "center",
+        boxSizing: "border-box",
+        backgroundColor: "#ffffff"
     },
     heroContainer: {
         maxWidth: "800px",
         display: "flex",
         flexDirection: "column",
-        alignItems: "center",
+        gap: "1.5rem"
     },
     badgeText: {
+        alignSelf: "flex-start",
         fontSize: "0.85rem",
-        fontWeight: "700",
-        color: "#0066cc",
-        backgroundColor: "#e8f2ff",
+        fontWeight: "600",
+        color: "#34c759",
+        backgroundColor: "#e8fdf0",
         padding: "0.4rem 1rem",
         borderRadius: "20px",
-        marginBottom: "1.5rem",
-        letterSpacing: "0.5px",
-        textTransform: "uppercase",
+        margin: "0 auto 0 0"
     },
     mainTitle: {
-        fontSize: "4rem",
         fontWeight: "800",
         color: "#1d1d1f",
-        margin: "0 0 1.5rem 0",
-        letterSpacing: "-1.5px",
         lineHeight: "1.1",
+        margin: 0
     },
     bioText: {
-        fontSize: "1.25rem",
-        color: "#86868b",
+        color: "#515154",
         lineHeight: "1.6",
-        margin: "0 0 2.5rem 0",
-        fontWeight: "400",
+        margin: 0
     },
     ctaGroup: {
         display: "flex",
         gap: "1rem",
-        flexWrap: "wrap",
-        justifyContent: "center",
-        alignItems: "center"
+        marginTop: "1rem"
     },
     primaryBtn: {
         backgroundColor: "#1d1d1f",
         color: "#ffffff",
-        textDecoration: "none",
         padding: "0.9rem 2rem",
         borderRadius: "30px",
-        fontSize: "1rem",
+        textDecoration: "none",
         fontWeight: "600",
-        boxShadow: "0 4px 15px rgba(0,0,0,0.05)",
-        transition: "all 0.2s ease",
+        fontSize: "0.95rem",
+        textAlign: "center",
+        transition: "background-color 0.2s ease"
     },
     resumeBtn: {
         color: "#ffffff",
         border: "none",
         padding: "0.9rem 2rem",
         borderRadius: "30px",
-        fontSize: "1rem",
         fontWeight: "600",
-        boxShadow: "0 4px 15px rgba(0, 102, 204, 0.2)",
-        transition: "all 0.2s ease",
-        fontFamily: "inherit"
+        fontSize: "0.95rem",
+        textAlign: "center",
+        transition: "all 0.2s ease"
     },
     secondaryBtn: {
-        backgroundColor: "transparent",
-        color: "#0066cc",
-        textDecoration: "none",
+        backgroundColor: "#ffffff",
+        color: "#1d1d1f",
+        border: "1px solid #d2d2d7",
         padding: "0.9rem 2rem",
         borderRadius: "30px",
-        fontSize: "1rem",
+        textDecoration: "none",
         fontWeight: "600",
-        border: "1px solid #0066cc",
-        transition: "all 0.2s ease",
+        fontSize: "0.95rem",
+        textAlign: "center",
+        transition: "all 0.2s ease"
     },
     skillsSection: {
-        padding: "6rem 0",
-        backgroundColor: "#ffffff",
-        borderTop: "1px solid #e5e5ea",
-        borderBottom: "1px solid #e5e5ea",
+        width: "100%",
+        boxSizing: "border-box"
     },
     sectionHeading: {
         fontSize: "2rem",
         fontWeight: "700",
         color: "#1d1d1f",
-        margin: "0 0 3rem 0",
-        letterSpacing: "-0.5px",
+        margin: "0 0 2rem 0"
     },
     skillsGrid: {
         display: "grid",
-        gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))",
-        gap: "2.5rem",
+        gap: "2rem"
     },
     skillCard: {
-        display: "flex",
-        flexDirection: "column",
-        gap: "1rem",
+        backgroundColor: "#ffffff",
+        padding: "2rem",
+        borderRadius: "20px",
+        boxShadow: "0 4px 20px rgba(0, 0, 0, 0.02)",
+        border: "1px solid rgba(0, 0, 0, 0.02)"
     },
     skillIcon: {
         fontSize: "2rem",
-        marginBottom: "0.5rem",
+        marginBottom: "1rem"
     },
     skillTitle: {
-        fontSize: "1.35rem",
+        fontSize: "1.3rem",
         fontWeight: "700",
         color: "#1d1d1f",
-        margin: 0,
+        margin: "0 0 0.5rem 0"
     },
     skillDesc: {
-        fontSize: "1rem",
+        fontSize: "0.95rem",
         color: "#86868b",
-        lineHeight: "1.55",
-        margin: 0,
+        lineHeight: "1.5",
+        margin: 0
     },
     featuredSection: {
-        padding: "6rem 0",
+        width: "100%",
+        boxSizing: "border-box",
+        backgroundColor: "#ffffff"
     },
     sectionHeaderRow: {
         display: "flex",
         justifyContent: "space-between",
-        alignItems: "baseline",
-        marginBottom: "3rem",
-        flexWrap: "wrap",
-        gap: "1rem",
+        alignItems: "center",
+        marginBottom: "2rem"
     },
     textLink: {
         color: "#0066cc",
         textDecoration: "none",
         fontWeight: "600",
-        fontSize: "1rem",
+        fontSize: "1rem"
     },
     projectsGrid: {
         display: "grid",
-        gridTemplateColumns: "repeat(auto-fit, minmax(450px, 1fr))",
-        gap: "2rem",
+        gap: "2rem"
     },
     projectCard: {
-        backgroundColor: "#ffffff",
-        padding: "2.5rem",
+        backgroundColor: "#f5f5f7",
+        padding: "2rem",
         borderRadius: "20px",
-        border: "1px solid rgba(0,0,0,0.03)",
-        boxShadow: "0 4px 20px rgba(0,0,0,0.01)",
         display: "flex",
         flexDirection: "column",
         justifyContent: "space-between",
-        gap: "2rem",
+        gap: "2rem"
     },
     projectTechText: {
         fontSize: "0.8rem",
         fontWeight: "700",
-        color: "#86868b",
+        color: "#0066cc",
         textTransform: "uppercase",
-        letterSpacing: "0.5px",
-        display: "block",
-        marginBottom: "0.5rem",
+        letterSpacing: "0.5px"
     },
     projectTitleText: {
-        fontSize: "1.5rem",
+        fontSize: "1.4rem",
         fontWeight: "700",
         color: "#1d1d1f",
-        margin: "0 0 1rem 0",
+        margin: "0.5rem 0"
     },
     projectDescText: {
         fontSize: "1rem",
         color: "#515154",
         lineHeight: "1.5",
-        margin: 0,
+        margin: 0
     },
     cardLink: {
-        color: "#0066cc",
+        color: "#1d1d1f",
         textDecoration: "none",
         fontWeight: "600",
-        fontSize: "0.95rem",
-        alignSelf: "flex-start",
-    },
+        fontSize: "0.95rem"
+    }
 };
 
 export default Home;

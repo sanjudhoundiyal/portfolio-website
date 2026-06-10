@@ -17,9 +17,12 @@ function Projects() {
         <section style={styles.projectsSection}>
             <div style={styles.container}>
                 <div style={styles.header}>
-                    <h1 style={styles.title}>Development Projects<span style={{ color: "#0066cc" }}>.</span></h1>
-                    <p style={styles.subtitle}>Development Projects
-A selection of applications showcasing problem-solving, system design, and software engineering skills.</p>
+                    <h1 style={styles.title}>
+                        Development Projects<span style={{ color: "#0066cc" }}>.</span>
+                    </h1>
+                    <p style={styles.subtitle}>
+                        A selection of applications showcasing problem-solving, system design, and software engineering skills.
+                    </p>
                 </div>
 
                 <div style={styles.grid}>
@@ -93,7 +96,7 @@ const styles = {
         borderRadius: "20px",
         display: "flex",
         flexDirection: "column",
-        justifyContent: "between",
+        justifyContent: "space-between", // Fixed: 'between' changed to 'space-between'
         boxShadow: "0 4px 20px rgba(0, 0, 0, 0.02)",
         border: "1px solid rgba(0, 0, 0, 0.03)",
         transition: "transform 0.2s ease, boxShadow 0.2s ease",

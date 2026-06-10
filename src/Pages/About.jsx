@@ -1,14 +1,20 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 function About() {
-    // Array of your real core technologies (cleaned up minor formatting duplicates)
+    const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
+
+    useEffect(() => {
+        const handleResize = () => setIsMobile(window.innerWidth <= 768);
+        window.addEventListener("resize", handleResize);
+        return () => window.removeEventListener("resize", handleResize);
+    }, []);
+
     const skills = [
         "Java", "Spring Boot", "React", "JavaScript", 
         "Python", "C++", "C", "HTML / CSS", 
         "SQL", "Git & GitHub", "RESTful APIs"
     ];
 
-    // Education timeline data
     const educationTimeline = [
         {
             degree: "Bachelor of Computer Applications (BCA)",
@@ -18,34 +24,29 @@ function About() {
         }
     ];
 
-    // Array of your personal strengths
     const strengths = [
-  "Punctual",
-  "Hardworking",
-  "Self-Motivated",
-  "Quick Learner",
-  "Team Player",
-  "Responsible",
-  "Disciplined",
-  "Goal-Oriented",
-  "Positive Attitude",
-  "Time Management",
-  "Attention to Detail",
-  "Continuous Learner",
-  "Technology Enthusiast",
-  "Music Lover",
-  "Cricket Enthusiast"
-];
+        "Punctual", "Hardworking", "Self-Motivated", "Quick Learner", 
+        "Team Player", "Responsible", "Disciplined", "Goal-Oriented", 
+        "Positive Attitude", "Time Management", "Attention to Detail", 
+        "Continuous Learner", "Technology Enthusiast", "Music Lover", "Cricket Enthusiast"
+    ];
 
     return (
-        <section style={styles.aboutWrapper}>
+        <section style={{
+            ...styles.aboutWrapper,
+            padding: isMobile ? "3rem 1rem" : "5rem 2rem"
+        }}>
             <div style={styles.container}>
                 
                 {/* Top Section: Profile Branding & Intro */}
-                <div style={styles.heroSection}>
+                <div style={{
+                    ...styles.heroSection,
+                    flexDirection: isMobile ? "column" : "row",
+                    textAlign: isMobile ? "center" : "left"
+                }}>
                     <div style={styles.avatarPlaceholder}>SD</div>
                     <div style={styles.heroTextContent}>
-                        <h1 style={styles.heading}>Sanjay Dhoundiyal</h1>
+                        <h1 style={{ ...styles.heading, fontSize: isMobile ? "2.2rem" : "2.8rem" }}>Sanjay Dhoundiyal</h1>
                         <p style={styles.titleTag}>Software Developer</p>
                         <p style={styles.bioText}>
                             I am a Software Developer with a strong foundation in Java, Spring Boot, React.js, and Database Management. I enjoy building scalable web applications and solving real-world problems through technology.
@@ -56,7 +57,11 @@ function About() {
                 <hr style={styles.divider} />
 
                 {/* Bottom Section: Split Content Area */}
-                <div style={styles.detailsGrid}>
+                <div style={{
+                    ...styles.detailsGrid,
+                    gridTemplateColumns: isMobile ? "1fr" : "1fr 1fr",
+                    gap: isMobile ? "3rem" : "5rem"
+                }}>
                     
                     {/* Left Column: Technical Skill Grid Matrix */}
                     <div>
@@ -110,13 +115,11 @@ function About() {
                     </div>
 
                 </div>
-
             </div>
         </section>
     );
 }
 
-// Premium Inline Styling Map
 const styles = {
     aboutWrapper: {
         width: "100%",
@@ -125,7 +128,6 @@ const styles = {
         display: "flex",
         justifyContent: "center",
         alignItems: "center",
-        padding: "5rem 2rem",
         boxSizing: "border-box",
         fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
     },
@@ -138,10 +140,8 @@ const styles = {
     },
     heroSection: {
         display: "flex",
-        flexDirection: "row",
         alignItems: "center",
-        gap: "3.5rem",
-        flexWrap: "wrap",
+        gap: "2.5rem",
     },
     avatarPlaceholder: {
         width: "120px",
@@ -156,13 +156,12 @@ const styles = {
         justifyContent: "center",
         letterSpacing: "1px",
         boxShadow: "0 10px 30px rgba(0, 0, 0, 0.08)",
+        flexShrink: 0,
     },
     heroTextContent: {
         flex: "1",
-        minWidth: "280px",
     },
     heading: {
-        fontSize: "2.8rem",
         fontWeight: "800",
         color: "#1d1d1f",
         margin: "0 0 0.25rem 0",
@@ -189,8 +188,6 @@ const styles = {
     },
     detailsGrid: {
         display: "grid",
-        gridTemplateColumns: "repeat(auto-fit, minmax(320px, 1fr))",
-        gap: "5rem",
     },
     rightColumnContainer: {
         display: "flex",
@@ -251,7 +248,7 @@ const styles = {
     strengthDot: {
         width: "6px",
         height: "6px",
-        backgroundColor: "#34c759", // Distinct soft green dot for strengths
+        backgroundColor: "#34c759", 
         borderRadius: "50%",
     },
     timeline: {
@@ -282,16 +279,18 @@ const styles = {
     timelineHeaderRow: {
         display: "flex",
         justifyContent: "space-between",
-        alignItems: "center",
+        alignItems: "flex-start",
         flexWrap: "wrap",
         gap: "0.5rem",
-        margin: "0 0 0.25rem 0",
+        margin: "0 0 0.5rem 0",
     },
     degreeText: {
         fontSize: "1.1rem",
         fontWeight: "700",
         color: "#1d1d1f",
         margin: 0,
+        flex: "1",
+        minWidth: "200px"
     },
     durationBadge: {
         fontSize: "0.8rem",
