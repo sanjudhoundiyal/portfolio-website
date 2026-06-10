@@ -14,7 +14,7 @@ function Contact() {
         return () => window.removeEventListener("resize", handleResize);
     }, []);
 
-    const API_CONTACT_URL = "http://localhost:8080/api/contact";
+    const API_CONTACT_URL = "https://portfolio-website-6-w0fn.onrender.com/api/contact";
 
     const handleSubmit = async (e) => {
         e.preventDefault();

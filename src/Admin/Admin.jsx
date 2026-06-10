@@ -22,9 +22,9 @@ function AdminDashboard() {
     const [resumeFile, setResumeFile] = useState(null);
     const [isUploadingResume, setIsUploadingResume] = useState(false);
 
-    const API_PROJECTS_URL = "http://localhost:8080/api/projects";
-    const API_CONTACT_URL = "http://localhost:8080/api/contact";
-    const API_RESUME_URL = "http://localhost:8080/api/resume/upload";
+    const API_PROJECTS_URL = "https://portfolio-website-6-w0fn.onrender.com/api/projects";
+    const API_CONTACT_URL = "https://portfolio-website-6-w0fn.onrender.com/api/contact";
+    const API_RESUME_URL = "https://portfolio-website-6-w0fn.onrender.com/api/resume/upload";
 
     // GET: Fetch Projects Matrix from Database
     const fetchProjects = async () => {
