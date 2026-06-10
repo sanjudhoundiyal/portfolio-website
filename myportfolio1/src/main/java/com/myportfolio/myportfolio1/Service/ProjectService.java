@@ -20,4 +20,9 @@ public class ProjectService {
     public Project save(Project project) {
         return repository.save(project);
     }
+
+
+    public void deleteProject(Long id) {
+        repository.deleteById(id);
+    }
 }

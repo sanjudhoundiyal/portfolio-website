@@ -15,14 +15,33 @@ public class ProjectController {
     @Autowired
     private ProjectService service;
 
+    // Get All Projects
     @GetMapping
     public List<Project> getProjects() {
         return service.getAllProjects();
     }
 
+    // Add Project
     @PostMapping
-    public Project addProject(
-            @RequestBody Project project) {
+    public Project addProject(@RequestBody Project project) {
         return service.save(project);
     }
+
+    // Update Project
+    @PutMapping("/{id}")
+    public Project updateProject(
+            @PathVariable Long id,
+            @RequestBody Project project) {
+
+        project.setId(id);
+        return service.save(project);
+    }
+
+    // Delete Project
+    @DeleteMapping("/{id}")
+    public String deleteProject(@PathVariable Long id) {
+        service.deleteProject(id);
+        return "Project Deleted Successfully";
+    }
 }
+
