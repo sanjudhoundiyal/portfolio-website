@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 
-function AdminDashboard() {
+function Admin() {
     // Core Database Entity States
     const [projects, setProjects] = useState([]);
     const [messages, setMessages] = useState([]);
@@ -10,6 +10,7 @@ function AdminDashboard() {
 
     // Modal Form States (Matching Spring Boot Project Entity Schema)
     const [isModalOpen, setIsModalOpen] = useState(false);
+    const [editingProjectId, setEditingProjectId] = useState(null); // Track if we are editing (null means creating)
     const [title, setTitle] = useState("");
     const [technology, setTechnology] = useState("");
     const [githubUrl, setGithubUrl] = useState("");
@@ -58,8 +59,32 @@ function AdminDashboard() {
         fetchMessages();
     }, []);
 
-    // POST: Insert Project Record into Backend Database
-    const handleAddProject = async (e) => {
+    // Open Modal for Creating New Project
+    const openAddModal = () => {
+        setEditingProjectId(null);
+        setTitle("");
+        setTechnology("");
+        setGithubUrl("");
+        setLiveDemoUrl("");
+        setImageUrl("");
+        setDescription("");
+        setIsModalOpen(true);
+    };
+
+    // Open Modal for Editing Existing Project
+    const openEditModal = (project) => {
+        setEditingProjectId(project.id);
+        setTitle(project.title);
+        setTechnology(project.technology);
+        setGithubUrl(project.githubUrl || "");
+        setLiveDemoUrl(project.liveDemoUrl || "");
+        setImageUrl(project.imageUrl || "");
+        setDescription(project.description);
+        setIsModalOpen(true);
+    };
+
+    // POST / PUT: Insert or Update Project Record in Backend Database
+    const handleSaveProject = async (e) => {
         e.preventDefault();
         if (!title || !technology || !description) {
             return alert("Required configuration properties missing.");
@@ -68,29 +93,57 @@ function AdminDashboard() {
         setIsLoading(true);
         const projectPayload = { title, technology, githubUrl, liveDemoUrl, imageUrl, description };
 
+        // If editingProjectId is present, use PUT URL with id, else use base POST URL
+        const url = editingProjectId ? `${API_PROJECTS_URL}/${editingProjectId}` : API_PROJECTS_URL;
+        const method = editingProjectId ? "PUT" : "POST";
+
         try {
-            const response = await fetch(API_PROJECTS_URL, {
-                method: "POST",
+            const response = await fetch(url, {
+                method: method,
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(projectPayload),
             });
 
             if (response.ok) {
                 await fetchProjects();
+                setIsModalOpen(false);
+                // Reset form fields
                 setTitle("");
                 setTechnology("");
                 setGithubUrl("");
                 setLiveDemoUrl("");
                 setImageUrl("");
                 setDescription("");
-                setIsModalOpen(false);
+                setEditingProjectId(null);
             } else {
-                alert("Database insertion rejected by Spring Boot pipeline.");
+                alert(`Database transaction rejected by Spring Boot pipeline during ${method}.`);
             }
         } catch (error) {
             console.error("Network Error:", error);
         } finally {
             setIsLoading(false);
+        }
+    };
+
+    // DELETE: Delete Project Record from Backend Database
+    const handleDeleteProject = async (id) => {
+        if (!window.confirm("Are you sure you want to delete this project record from the database?")) {
+            return;
+        }
+
+        try {
+            const response = await fetch(`${API_PROJECTS_URL}/${id}`, {
+                method: "DELETE",
+            });
+
+            if (response.ok) {
+                alert("Project Deleted Successfully");
+                await fetchProjects(); // Refresh UI list
+            } else {
+                alert("Failed to delete project from Spring Boot backend.");
+            }
+        } catch (error) {
+            console.error("Delete Network Error:", error);
         }
     };
 
@@ -103,18 +156,17 @@ function AdminDashboard() {
 
         setIsUploadingResume(true);
         const formData = new FormData();
-        formData.append("file", resumeFile); // Spring Boot controller targets @RequestParam("file")
+        formData.append("file", resumeFile);
 
         try {
             const response = await fetch(API_RESUME_URL, {
                 method: "POST",
-                body: formData, // Content-Type header browser apne aap set karega boundaries ke sath
+                body: formData,
             });
 
             if (response.ok) {
                 alert("Resume uploaded successfully into database pipeline!");
                 setResumeFile(null);
-                // Input element ko clear karne ke liye form reset
                 e.target.reset();
             } else {
                 alert("Resume upload rejected by Spring Boot pipeline.");
@@ -167,7 +219,7 @@ function AdminDashboard() {
                         </p>
                     </div>
                     {currentTab === "overview" && (
-                        <button style={styles.primaryButton} onClick={() => setIsModalOpen(true)}>
+                        <button style={styles.primaryButton} onClick={openAddModal}>
                             + Add DB Project
                         </button>
                     )}
@@ -222,9 +274,15 @@ function AdminDashboard() {
                                             </div>
                                             <p style={styles.cardSubtitle}><strong>Tech Stack:</strong> {proj.technology}</p>
                                             <p style={styles.cardDescText}>{proj.description}</p>
-                                            <div style={styles.linksRow}>
-                                                {proj.githubUrl && <a href={proj.githubUrl} target="_blank" rel="noreferrer" style={styles.metaLink}>GitHub</a>}
-                                                {proj.liveDemoUrl && <a href={proj.liveDemoUrl} target="_blank" rel="noreferrer" style={styles.metaLink}>Live Deploy</a>}
+                                            <div style={styles.actionRowContainer}>
+                                                <div style={styles.linksRow}>
+                                                    {proj.githubUrl && <a href={proj.githubUrl} target="_blank" rel="noreferrer" style={styles.metaLink}>GitHub</a>}
+                                                    {proj.liveDemoUrl && <a href={proj.liveDemoUrl} target="_blank" rel="noreferrer" style={styles.metaLink}>Live Deploy</a>}
+                                                </div>
+                                                <div style={styles.crudButtonsRow}>
+                                                    <button onClick={() => openEditModal(proj)} style={styles.editButton}>Edit</button>
+                                                    <button onClick={() => handleDeleteProject(proj.id)} style={styles.deleteButton}>Delete</button>
+                                                </div>
                                             </div>
                                         </div>
                                     ))
@@ -265,8 +323,10 @@ function AdminDashboard() {
                 {isModalOpen && (
                     <div style={styles.modalOverlay}>
                         <div style={styles.modalContent}>
-                            <h2 style={styles.modalTitle}>POST New Entity Record</h2>
-                            <form onSubmit={handleAddProject} style={styles.formContainer}>
+                            <h2 style={styles.modalTitle}>
+                                {editingProjectId ? "UPDATE Entity Record" : "POST New Entity Record"}
+                            </h2>
+                            <form onSubmit={handleSaveProject} style={styles.formContainer}>
                                 <div style={styles.formGroup}>
                                     <label style={styles.formLabel}>Project Title</label>
                                     <input type="text" required style={styles.formInput} placeholder="e.g. Microservices Gateway" value={title} onChange={(e) => setTitle(e.target.value)} />
@@ -296,7 +356,7 @@ function AdminDashboard() {
                                 <div style={styles.modalActionsRow}>
                                     <button type="button" disabled={isLoading} style={styles.cancelButton} onClick={() => setIsModalOpen(false)}>Cancel</button>
                                     <button type="submit" disabled={isLoading} style={styles.submitButton}>
-                                        {isLoading ? "Saving..." : "Commit Entity Object"}
+                                        {isLoading ? "Saving..." : editingProjectId ? "Update Entity Object" : "Commit Entity Object"}
                                     </button>
                                 </div>
                             </form>
@@ -342,8 +402,12 @@ const styles = {
     monoIdBadge: { fontFamily: "monospace", fontSize: "0.8rem", backgroundColor: "#f5f5f7", color: "#515154", padding: "0.2rem 0.5rem", borderRadius: "4px", fontWeight: "600" },
     cardSubtitle: { fontSize: "0.9rem", color: "#515154", margin: "0 0 0.5rem 0" },
     cardDescText: { fontSize: "0.9rem", color: "#86868b", lineHeight: "1.45", margin: "0 0 1rem 0" },
+    actionRowContainer: { display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: "1rem", borderTop: "1px solid #f5f5f7", paddingTop: "0.75rem" },
     linksRow: { display: "flex", gap: "1rem" },
     metaLink: { fontSize: "0.85rem", color: "#0066cc", fontWeight: "600", textDecoration: "none" },
+    crudButtonsRow: { display: "flex", gap: "0.75rem" },
+    editButton: { backgroundColor: "#f5f5f7", border: "none", color: "#0066cc", padding: "0.4rem 0.8rem", borderRadius: "6px", fontSize: "0.85rem", fontWeight: "600", cursor: "pointer" },
+    deleteButton: { backgroundColor: "rgba(255, 59, 48, 0.1)", border: "none", color: "#ff3b30", padding: "0.4rem 0.8rem", borderRadius: "6px", fontSize: "0.85rem", fontWeight: "600", cursor: "pointer" },
     messageCard: { backgroundColor: "#ffffff", padding: "1.5rem", borderRadius: "14px", boxShadow: "0 4px 12px rgba(0, 0, 0, 0.02)", border: "1px solid rgba(0, 0, 0, 0.03)", borderLeft: "4px solid #0066cc" },
     messageSenderName: { fontSize: "1.1rem", fontWeight: "700", color: "#1d1d1f", margin: 0 },
     messageEmailLink: { fontSize: "0.85rem", color: "#0066cc", textDecoration: "none" },
@@ -361,4 +425,4 @@ const styles = {
     submitButton: { backgroundColor: "#0066cc", border: "none", color: "#ffffff", padding: "0.75rem 1.25rem", borderRadius: "8px", fontWeight: "600", cursor: "pointer" }
 };
 
-export default AdminDashboard;
+export default Admin;
