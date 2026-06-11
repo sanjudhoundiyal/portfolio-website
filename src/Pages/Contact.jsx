@@ -29,27 +29,27 @@ function Contact() {
             return;
         }
 
-   const name = cleanName.trim();
+    const nameRegex = /^[A-Za-z\s.'-]{2,50}$/;
 
-const nameRegex = /^[A-Za-z\s.'-]{2,50}$/;
+const nameRegex = /^[A-Za-z][A-Za-z\s.'-]{1,49}$/;
 
-if (!nameRegex.test(name)) {
+if (!nameRegex.test(cleanName.trim())) {
     setValidationError(
         "⚠️ Please enter a valid name."
     );
     return;
 }
 
-const email = cleanEmail.trim().toLowerCase();
+const emailRegex =
+/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
 
-const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
-
-if (!emailRegex.test(email)) {
+if (!emailRegex.test(cleanEmail.trim())) {
     setValidationError(
         "⚠️ Please enter a valid email address."
     );
     return;
-}     
+}
+       
         
 
         if (cleanMessage.length < 10) {
