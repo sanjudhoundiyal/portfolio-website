@@ -3,11 +3,12 @@ package com.myportfolio.myportfolio1.Service;
 import com.myportfolio.myportfolio1.Entity.Admin;
 import com.myportfolio.myportfolio1.Repo.AdminRepo;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import java.util.Optional;
 import java.util.UUID;
 
-
+@Service
 public class AdminService {
 
 
