@@ -29,7 +29,7 @@ function Contact() {
             return;
         }
 
-    const nameRegex = /^[A-Za-z\s.'-]{2,50}$/;
+    
 
 const nameRegex = /^[A-Za-z][A-Za-z\s.'-]{1,49}$/;
 
