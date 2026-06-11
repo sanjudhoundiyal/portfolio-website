@@ -47,11 +47,7 @@ if (!emailRegex.test(cleanEmail.trim())) {
     return;
 }
        
-        const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
-        if (!emailRegex.test(cleanEmail)) {
-            setValidationError("⚠️ Invalid Email Layout: Please provide an authentic email address.");
-            return;
-        }
+        
 
         if (cleanMessage.length < 10) {
             setValidationError("⚠️ Context is too brief: Message must contain at least 10 characters.");
