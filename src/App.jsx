@@ -38,9 +38,9 @@ function App() {
 
 
 <Route
-          path="/admin"
-          element={<Admin />}
-        />
+  path="/corepanel-admin"
+  element={<Admin />}
+/>
       </Routes>
 
     </BrowserRouter>

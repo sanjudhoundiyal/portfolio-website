@@ -1,16 +1,25 @@
 import { useState, useEffect } from "react";
+// Import SweetAlert2
+import Swal from "sweetalert2";
 
 function Admin() {
-    // Core Database Entity States
+    // --- AUTHENTICATION STATES ---
+    const [isAuthenticated, setIsAuthenticated] = useState(false);
+    const [authMode, setAuthMode] = useState("login"); 
+    const [authEmail, setAuthEmail] = useState("");
+    const [authPassword, setAuthPassword] = useState("");
+    const [authLoading, setAuthLoading] = useState(false);
+
+    // --- CORE DATABASE ENTITY STATES ---
     const [projects, setProjects] = useState([]);
     const [messages, setMessages] = useState([]);
     
-    // Tab Navigation State ("overview" or "messages")
+    // Tab Navigation State
     const [currentTab, setCurrentTab] = useState("overview");
 
-    // Modal Form States (Matching Spring Boot Project Entity Schema)
+    // Modal Form States
     const [isModalOpen, setIsModalOpen] = useState(false);
-    const [editingProjectId, setEditingProjectId] = useState(null); // Track if we are editing (null means creating)
+    const [editingProjectId, setEditingProjectId] = useState(null); 
     const [title, setTitle] = useState("");
     const [technology, setTechnology] = useState("");
     const [githubUrl, setGithubUrl] = useState("");
@@ -23,9 +32,123 @@ function Admin() {
     const [resumeFile, setResumeFile] = useState(null);
     const [isUploadingResume, setIsUploadingResume] = useState(false);
 
+    // --- API ENDPOINTS CONFIGURATION ---
+    const API_AUTH_BASE = "https://portfolio-website-6-w0fn.onrender.com/api/admin"; 
     const API_PROJECTS_URL = "https://portfolio-website-6-w0fn.onrender.com/api/projects";
     const API_CONTACT_URL = "https://portfolio-website-6-w0fn.onrender.com/api/contact";
     const API_RESUME_URL = "https://portfolio-website-6-w0fn.onrender.com/api/resume/upload";
+
+    // --- EFFECT LIFECYCLE ---
+    useEffect(() => {
+        if (isAuthenticated) {
+            fetchProjects();
+            fetchMessages();
+        }
+    }, [isAuthenticated]);
+
+    // --- BACKEND API LOGIC CONTROLLERS ---
+
+    // FIX: Strict Authentication and Swal Notification Added
+    const handleLoginSubmit = async (e) => {
+        e.preventDefault();
+        setAuthLoading(true);
+
+        const params = new URLSearchParams();
+        params.append("email", authEmail.trim());
+        params.append("password", authPassword);
+
+        try {
+            const response = await fetch(`${API_AUTH_BASE}/login?${params.toString()}`, {
+                method: "POST"
+            });
+            const textResult = await response.text();
+
+            // Check if request is completely successful and backend string explicitly approves
+            if (response.ok && !textResult.toLowerCase().includes("invalid") && !textResult.toLowerCase().includes("fail")) {
+                Swal.fire({
+                    icon: "success",
+                    title: "Access Granted",
+                    text: "Authentication clearance granted successfully!",
+                    timer: 2000,
+                    showConfirmButton: false
+                });
+                setIsAuthenticated(true); 
+            } else {
+                // Throws error if another email is entered or database rejects it
+                Swal.fire({
+                    icon: "error",
+                    title: "Authentication Failed",
+                    text: textResult || "Invalid administrative credentials processed."
+                });
+            }
+        } catch (error) {
+            console.error("Login Request Error:", error);
+            Swal.fire({
+                icon: "error",
+                title: "Server Error",
+                text: "Authentication server pipeline unreachable."
+            });
+        } finally {
+            setAuthLoading(false);
+        }
+    };
+
+    // AUTH POST: Handle Forgot Password Flow with Swal
+    const handleForgotSubmit = async (e) => {
+        e.preventDefault();
+        if (!authEmail) {
+            return Swal.fire({ icon: "warning", title: "Missing Input", text: "Please enter your registered email address." });
+        }
+        
+        setAuthLoading(true);
+        const params = new URLSearchParams();
+        params.append("email", authEmail.trim());
+
+        try {
+            const response = await fetch(`${API_AUTH_BASE}/forgot-password?${params.toString()}`, {
+                method: "POST"
+            });
+            const textResult = await response.text();
+
+            if (response.ok) {
+                Swal.fire({
+                    icon: "success",
+                    title: "Reset Request Sent",
+                    text: textResult || "Password reset instructions processed! Check your email."
+                });
+                setAuthMode("login"); 
+            } else {
+                Swal.fire({ icon: "error", title: "Rejected", text: textResult || "Forgot password request rejected by server." });
+            }
+        } catch (error) {
+            console.error("Forgot Password Error:", error);
+            Swal.fire({ icon: "error", title: "Server Error", text: "Error communicating with recovery server pipeline." });
+        } finally {
+            setAuthLoading(false);
+        }
+    };
+
+    // AUTH LOGOUT: Destroys dashboard context access state
+    const handleLogout = () => {
+        Swal.fire({
+            title: "Are you sure?",
+            text: "You want to terminate this administrative session?",
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonColor: "#ff453a",
+            cancelButtonColor: "#3a3a3c",
+            confirmButtonText: "Yes, Logout"
+        }).then((result) => {
+            if (result.isConfirmed) {
+                setIsAuthenticated(false);
+                setAuthEmail("");
+                setAuthPassword("");
+                setProjects([]);
+                setMessages([]);
+                Swal.fire({ icon: "info", title: "Logged Out", text: "Session destroyed safely.", timer: 1500, showConfirmButton: false });
+            }
+        });
+    };
 
     // GET: Fetch Projects Matrix from Database
     const fetchProjects = async () => {
@@ -53,13 +176,6 @@ function Admin() {
         }
     };
 
-    // Lifecycle Synchronizer Loop
-    useEffect(() => {
-        fetchProjects();
-        fetchMessages();
-    }, []);
-
-    // Open Modal for Creating New Project
     const openAddModal = () => {
         setEditingProjectId(null);
         setTitle("");
@@ -71,7 +187,6 @@ function Admin() {
         setIsModalOpen(true);
     };
 
-    // Open Modal for Editing Existing Project
     const openEditModal = (project) => {
         setEditingProjectId(project.id);
         setTitle(project.title);
@@ -83,17 +198,16 @@ function Admin() {
         setIsModalOpen(true);
     };
 
-    // POST / PUT: Insert or Update Project Record in Backend Database
+    // POST / PUT: Insert or Update Project Record with Swal Confirmation
     const handleSaveProject = async (e) => {
         e.preventDefault();
         if (!title || !technology || !description) {
-            return alert("Required configuration properties missing.");
+            return Swal.fire({ icon: "warning", title: "Validation Error", text: "Required configuration properties missing." });
         }
 
         setIsLoading(true);
         const projectPayload = { title, technology, githubUrl, liveDemoUrl, imageUrl, description };
 
-        // If editingProjectId is present, use PUT URL with id, else use base POST URL
         const url = editingProjectId ? `${API_PROJECTS_URL}/${editingProjectId}` : API_PROJECTS_URL;
         const method = editingProjectId ? "PUT" : "POST";
 
@@ -107,7 +221,6 @@ function Admin() {
             if (response.ok) {
                 await fetchProjects();
                 setIsModalOpen(false);
-                // Reset form fields
                 setTitle("");
                 setTechnology("");
                 setGithubUrl("");
@@ -115,8 +228,10 @@ function Admin() {
                 setImageUrl("");
                 setDescription("");
                 setEditingProjectId(null);
+                
+                Swal.fire({ icon: "success", title: "Saved!", text: `Project successfully handled via ${method}.`, timer: 2000, showConfirmButton: false });
             } else {
-                alert(`Database transaction rejected by Spring Boot pipeline during ${method}.`);
+                Swal.fire({ icon: "error", title: "Transaction Rejected", text: `Database transaction rejected by Spring Boot pipeline.` });
             }
         } catch (error) {
             console.error("Network Error:", error);
@@ -125,33 +240,63 @@ function Admin() {
         }
     };
 
-    // DELETE: Delete Project Record from Backend Database
+    // DELETE: Delete Project Record from Database with Swal Confirm Dialog
     const handleDeleteProject = async (id) => {
-        if (!window.confirm("Are you sure you want to delete this project record from the database?")) {
-            return;
-        }
-
-        try {
-            const response = await fetch(`${API_PROJECTS_URL}/${id}`, {
-                method: "DELETE",
-            });
-
-            if (response.ok) {
-                alert("Project Deleted Successfully");
-                await fetchProjects(); // Refresh UI list
-            } else {
-                alert("Failed to delete project from Spring Boot backend.");
+        Swal.fire({
+            title: "Delete Project?",
+            text: "Are you sure you want to delete this project record from the database?",
+            icon: "danger",
+            showCancelButton: true,
+            confirmButtonColor: "#ff453a",
+            confirmButtonText: "Yes, Delete Record"
+        }).then(async (result) => {
+            if (result.isConfirmed) {
+                try {
+                    const response = await fetch(`${API_PROJECTS_URL}/${id}`, { method: "DELETE" });
+                    if (response.ok) {
+                        Swal.fire("Deleted!", "Project deleted successfully.", "success");
+                        await fetchProjects(); 
+                    } else {
+                        Swal.fire("Failed", "Failed to delete project from backend.", "error");
+                    }
+                } catch (error) {
+                    console.error("Delete Network Error:", error);
+                }
             }
-        } catch (error) {
-            console.error("Delete Network Error:", error);
-        }
+        });
+    };
+
+    // DELETE: Delete Message/Contact Record from Database with Swal Confirm
+    const handleDeleteMessage = async (id) => {
+        Swal.fire({
+            title: "Permanently Delete Message?",
+            text: "This action cannot be undone inside the cloud instance.",
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonColor: "#ff453a",
+            confirmButtonText: "Yes, Delete It"
+        }).then(async (result) => {
+            if (result.isConfirmed) {
+                try {
+                    const response = await fetch(`${API_CONTACT_URL}/${id}`, { method: "DELETE" });
+                    if (response.ok) {
+                        Swal.fire("Erased!", "Message deleted safely.", "success");
+                        await fetchMessages(); 
+                    } else {
+                        Swal.fire("Failed", "Failed to erase database entry.", "error");
+                    }
+                } catch (error) {
+                    console.error("Contact Delete Request Error:", error);
+                }
+            }
+        });
     };
 
     // POST: Multipart Resume File Upload to Backend
     const handleResumeUpload = async (e) => {
         e.preventDefault();
         if (!resumeFile) {
-            return alert("Please select a resume file first.");
+            return Swal.fire({ icon: "warning", title: "No File", text: "Please select a resume file first." });
         }
 
         setIsUploadingResume(true);
@@ -165,87 +310,137 @@ function Admin() {
             });
 
             if (response.ok) {
-                alert("Resume uploaded successfully into database pipeline!");
+                Swal.fire({ icon: "success", title: "Uploaded!", text: "Resume uploaded successfully into database pipeline." });
                 setResumeFile(null);
                 e.target.reset();
             } else {
-                alert("Resume upload rejected by Spring Boot pipeline.");
+                Swal.fire({ icon: "error", title: "Rejected", text: "Resume upload rejected by backend." });
             }
         } catch (error) {
             console.error("Resume Upload Network Error:", error);
-            alert("Network error occurred while uploading resume.");
+            Swal.fire({ icon: "error", title: "Error", text: "Network error occurred while uploading resume." });
         } finally {
             setIsUploadingResume(false);
         }
     };
 
+    // --- CONDITION RENDER: SECURITY GATEWAY AUTHENTICATION SHIELD ---
+    if (!isAuthenticated) {
+        return (
+            <div style={styles.authWrapper}>
+                <div style={styles.authCard}>
+                    <div style={styles.authLogoSection}>
+                        <div style={styles.logoIcon}>⚡</div>
+                        <span style={styles.authLogoText}>CorePanel Admin Secure Gateway</span>
+                    </div>
+
+                    {authMode === "login" ? (
+                        <div>
+                            <h2 style={styles.authTitle}>Sign In</h2>
+                            <p style={styles.authSubtitle}>Provide verification variables to boot database environment access</p>
+                            <form onSubmit={handleLoginSubmit} style={styles.formContainer}>
+                                <div style={styles.formGroup}>
+                                    <label style={styles.formLabel}>Email Address</label>
+                                    <input 
+                                        type="email" 
+                                        required 
+                                        style={styles.formInput} 
+                                        placeholder="root@corepanel.com" 
+                                        value={authEmail}
+                                        onChange={(e) => setAuthEmail(e.target.value)}
+                                    />
+                                </div>
+                                <div style={styles.formGroup}>
+                                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                                        <label style={styles.formLabel}>Secure Password Matrix</label>
+                                        <span style={styles.forgotLink} onClick={() => setAuthMode("forgot")}>
+                                            Forgot Password?
+                                        </span>
+                                    </div>
+                                    <input 
+                                        type="password" 
+                                        required 
+                                        style={styles.formInput} 
+                                        placeholder="••••••••" 
+                                        value={authPassword}
+                                        onChange={(e) => setAuthPassword(e.target.value)}
+                                    />
+                                </div>
+                                <button type="submit" disabled={authLoading} style={{...styles.authSubmitBtn, width: '100%'}}>
+                                    {authLoading ? "Verifying Keys..." : "Authorize System Handshake"}
+                                </button>
+                            </form>
+                        </div>
+                    ) : (
+                        <div>
+                            <h2 style={styles.authTitle}>Recover Access</h2>
+                            <p style={styles.authSubtitle}>Send a secure credential reset trigger link to your system email</p>
+                            <form onSubmit={handleForgotSubmit} style={styles.formContainer}>
+                                <div style={styles.formGroup}>
+                                    <label style={styles.formLabel}>Registered Admin Admin Email</label>
+                                    <input 
+                                        type="email" 
+                                        required 
+                                        style={styles.formInput} 
+                                        placeholder="Enter your administrative email" 
+                                        value={authEmail}
+                                        onChange={(e) => setAuthEmail(e.target.value)}
+                                    />
+                                </div>
+                                <button type="submit" disabled={authLoading} style={{...styles.authSubmitBtn, width: '100%', backgroundColor: '#e28743'}}>
+                                    {authLoading ? "Sending Trigger..." : "Dispatch Recovery Link"}
+                                </button>
+                            </form>
+                            <p style={styles.authToggleText}>
+                                Remembered keys?{" "}
+                                <span style={styles.authToggleLink} onClick={() => setAuthMode("login")}>
+                                    Back to Sign In
+                                </span>
+                            </p>
+                        </div>
+                    )}
+                </div>
+            </div>
+        );
+    }
+
     return (
         <div style={styles.dashboardWrapper}>
-            {/* Left Operational Sidebar */}
             <aside style={styles.sidebar}>
                 <div style={styles.logoSection}>
                     <div style={styles.logoIcon}>⚡</div>
                     <span style={styles.logoText}>CorePanel</span>
                 </div>
                 <nav style={styles.navMenu}>
-                    <button 
-                        onClick={() => setCurrentTab("overview")} 
-                        style={{ ...styles.navItem, ...(currentTab === "overview" ? styles.navItemActive : {}) }}
-                    >
+                    <button onClick={() => setCurrentTab("overview")} style={{ ...styles.navItem, ...(currentTab === "overview" ? styles.navItemActive : {}) }}>
                         System Overview ({projects.length})
                     </button>
-                    <button 
-                        onClick={() => setCurrentTab("messages")} 
-                        style={{ ...styles.navItem, ...(currentTab === "messages" ? styles.navItemActive : {}) }}
-                    >
+                    <button onClick={() => setCurrentTab("messages")} style={{ ...styles.navItem, ...(currentTab === "messages" ? styles.navItemActive : {}) }}>
                         Messages ({messages.length})
                     </button>
                 </nav>
                 <div style={styles.sidebarFooter}>
                     <p style={styles.userTag}>S. Dhoundiyal</p>
                     <span style={styles.roleSubtext}>Root Administrator</span>
+                    <button onClick={handleLogout} style={styles.logoutBtn}>Terminate Session</button>
                 </div>
             </aside>
 
-            {/* Main Application Window Workspace */}
             <main style={styles.mainContent}>
                 <header style={styles.header}>
                     <div>
-                        <h1 style={styles.pageTitle}>
-                            {currentTab === "overview" ? "System Console" : "Messages Inbox"}
-                        </h1>
-                        <p style={styles.pageSubtitle}>
-                            {currentTab === "overview" ? "Live database views tracking portfolio projects." : "Review user inquiries from your contact form."}
-                        </p>
+                        <h1 style={styles.pageTitle}>{currentTab === "overview" ? "System Console" : "Messages Inbox"}</h1>
+                        <p style={styles.pageSubtitle}>{currentTab === "overview" ? "Live database views tracking portfolio projects." : "Review user inquiries."}</p>
                     </div>
-                    {currentTab === "overview" && (
-                        <button style={styles.primaryButton} onClick={openAddModal}>
-                            + Add DB Project
-                        </button>
-                    )}
+                    {currentTab === "overview" && <button style={styles.primaryButton} onClick={openAddModal}>+ Add DB Project</button>}
                 </header>
 
-                {/* RESUME UPLOAD UTILITY SECTION (Only visible in System Overview) */}
                 {currentTab === "overview" && (
                     <section style={styles.resumeUploadSection}>
                         <h2 style={styles.sectionTitle}>Resume Control Center</h2>
-                        <p style={styles.pageSubtitle}>Update your primary portfolio resume document record below.</p>
                         <form onSubmit={handleResumeUpload} style={styles.resumeForm}>
-                            <input 
-                                type="file" 
-                                accept=".pdf,.doc,.docx" 
-                                style={styles.fileInput} 
-                                onChange={(e) => setResumeFile(e.target.files[0])} 
-                            />
-                            <button 
-                                type="submit" 
-                                disabled={isUploadingResume} 
-                                style={{
-                                    ...styles.primaryButton,
-                                    backgroundColor: isUploadingResume ? "#a1a1a6" : "#0066cc",
-                                    boxShadow: "none"
-                                }}
-                            >
+                            <input type="file" accept=".pdf,.doc,.docx" style={styles.fileInput} onChange={(e) => setResumeFile(e.target.files[0])} />
+                            <button type="submit" disabled={isUploadingResume} style={{ ...styles.primaryButton, backgroundColor: isUploadingResume ? "#a1a1a6" : "#0066cc" }}>
                                 {isUploadingResume ? "Uploading..." : "Upload New Resume File"}
                             </button>
                         </form>
@@ -253,111 +448,78 @@ function Admin() {
                 )}
 
                 <div style={styles.detailsGrid}>
-                    
-                    {/* TAB CONDITIONS FOR DYNAMIC DISPLAY */}
                     {currentTab === "overview" ? (
-                        /* SHOW ONLY PROJECTS IN OVERVIEW */
                         <div style={styles.fullWidthColumn}>
                             <div style={styles.sectionHeaderRow}>
                                 <h2 style={styles.sectionTitle}>Database Project Records</h2>
                                 <span style={styles.counterBadge}>{projects.length} Online</span>
                             </div>
                             <div style={styles.cardListContainer}>
-                                {projects.length === 0 ? (
-                                    <p style={styles.emptyText}>No deployed projects pulled from your Spring Boot database.</p>
-                                ) : (
-                                    projects.map((proj) => (
-                                        <div key={proj.id} style={styles.dataCard}>
-                                            <div style={styles.cardHeader}>
-                                                <h3 style={styles.cardMainTitle}>{proj.title}</h3>
-                                                <span style={styles.monoIdBadge}>ID: {proj.id}</span>
+                                {projects.length === 0 ? <p style={styles.emptyText}>No deployed projects pulled from Spring Boot.</p> : projects.map((proj) => (
+                                    <div key={proj.id} style={styles.dataCard}>
+                                        <div style={styles.cardHeader}>
+                                            <h3 style={styles.cardMainTitle}>{proj.title}</h3>
+                                            <span style={styles.monoIdBadge}>ID: {proj.id}</span>
+                                        </div>
+                                        <p style={styles.cardSubtitle}><strong>Tech Stack:</strong> {proj.technology}</p>
+                                        <p style={styles.cardDescText}>{proj.description}</p>
+                                        <div style={styles.actionRowContainer}>
+                                            <div style={styles.linksRow}>
+                                                {proj.githubUrl && <a href={proj.githubUrl} target="_blank" rel="noreferrer" style={styles.metaLink}>GitHub</a>}
+                                                {proj.liveDemoUrl && <a href={proj.liveDemoUrl} target="_blank" rel="noreferrer" style={styles.metaLink}>Live Deploy</a>}
                                             </div>
-                                            <p style={styles.cardSubtitle}><strong>Tech Stack:</strong> {proj.technology}</p>
-                                            <p style={styles.cardDescText}>{proj.description}</p>
-                                            <div style={styles.actionRowContainer}>
-                                                <div style={styles.linksRow}>
-                                                    {proj.githubUrl && <a href={proj.githubUrl} target="_blank" rel="noreferrer" style={styles.metaLink}>GitHub</a>}
-                                                    {proj.liveDemoUrl && <a href={proj.liveDemoUrl} target="_blank" rel="noreferrer" style={styles.metaLink}>Live Deploy</a>}
-                                                </div>
-                                                <div style={styles.crudButtonsRow}>
-                                                    <button onClick={() => openEditModal(proj)} style={styles.editButton}>Edit</button>
-                                                    <button onClick={() => handleDeleteProject(proj.id)} style={styles.deleteButton}>Delete</button>
-                                                </div>
+                                            <div style={styles.crudButtonsRow}>
+                                                <button onClick={() => openEditModal(proj)} style={styles.editButton}>Edit</button>
+                                                <button onClick={() => handleDeleteProject(proj.id)} style={styles.deleteButton}>Delete</button>
                                             </div>
                                         </div>
-                                    ))
-                                )}
+                                    </div>
+                                ))}
                             </div>
                         </div>
                     ) : (
-                        /* SHOW ONLY MESSAGES IN MESSAGES TAB */
                         <div style={styles.fullWidthColumn}>
                             <div style={styles.sectionHeaderRow}>
                                 <h2 style={styles.sectionTitle}>Live Portfolio Contact Inbox</h2>
                                 <span style={{ ...styles.counterBadge, backgroundColor: "#e8f2ff", color: "#0066cc" }}>{messages.length} Received</span>
                             </div>
                             <div style={styles.cardListContainer}>
-                                {messages.length === 0 ? (
-                                    <p style={styles.emptyText}>No contact entries exist in the database record matrix.</p>
-                                ) : (
-                                    messages.map((msg) => (
-                                        <div key={msg.id} style={styles.messageCard}>
-                                            <div style={styles.cardHeader}>
-                                                <div>
-                                                    <h3 style={styles.messageSenderName}>{msg.name}</h3>
-                                                    <a href={`mailto:${msg.email}`} style={styles.messageEmailLink}>{msg.email}</a>
-                                                </div>
-                                                <span style={styles.monoIdBadge}>ID: {msg.id}</span>
+                                {messages.length === 0 ? <p style={styles.emptyText}>No contact entries exist.</p> : messages.map((msg) => (
+                                    <div key={msg.id} style={styles.messageCard}>
+                                        <div style={styles.cardHeader}>
+                                            <div>
+                                                <h3 style={styles.messageSenderName}>{msg.name}</h3>
+                                                <a href={`mailto:${msg.email}`} style={styles.messageEmailLink}>{msg.email}</a>
                                             </div>
-                                            <p style={styles.messageContentText}>"{msg.message}"</p>
+                                            <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                                                <span style={styles.monoIdBadge}>ID: {msg.id}</span>
+                                                <button onClick={() => handleDeleteMessage(msg.id)} style={styles.deleteButton}>Delete</button>
+                                            </div>
                                         </div>
-                                    ))
-                                )}
+                                        <p style={styles.messageContentText}>"{msg.message}"</p>
+                                    </div>
+                                ))}
                             </div>
                         </div>
                     )}
-
                 </div>
 
-                {/* MODAL SYSTEM OVERLAY PANEL */}
                 {isModalOpen && (
                     <div style={styles.modalOverlay}>
                         <div style={styles.modalContent}>
-                            <h2 style={styles.modalTitle}>
-                                {editingProjectId ? "UPDATE Entity Record" : "POST New Entity Record"}
-                            </h2>
+                            <h2 style={styles.modalTitle}>{editingProjectId ? "UPDATE Entity Record" : "POST New Entity Record"}</h2>
                             <form onSubmit={handleSaveProject} style={styles.formContainer}>
-                                <div style={styles.formGroup}>
-                                    <label style={styles.formLabel}>Project Title</label>
-                                    <input type="text" required style={styles.formInput} placeholder="e.g. Microservices Gateway" value={title} onChange={(e) => setTitle(e.target.value)} />
-                                </div>
-                                <div style={styles.formGroup}>
-                                    <label style={styles.formLabel}>Technologies Matrix</label>
-                                    <input type="text" required style={styles.formInput} placeholder="e.g. Java, Spring Boot, MySQL" value={technology} onChange={(e) => setTechnology(e.target.value)} />
-                                </div>
+                                <div style={styles.formGroup}><label style={styles.formLabel}>Project Title</label><input type="text" required style={styles.formInput} value={title} onChange={(e) => setTitle(e.target.value)} /></div>
+                                <div style={styles.formGroup}><label style={styles.formLabel}>Technologies Matrix</label><input type="text" required style={styles.formInput} value={technology} onChange={(e) => setTechnology(e.target.value)} /></div>
                                 <div style={styles.formGroupGrid}>
-                                    <div style={styles.formGroup}>
-                                        <label style={styles.formLabel}>GitHub Repository Link</label>
-                                        <input type="url" style={styles.formInput} placeholder="https://github.com/..." value={githubUrl} onChange={(e) => setGithubUrl(e.target.value)} />
-                                    </div>
-                                    <div style={styles.formGroup}>
-                                        <label style={styles.formLabel}>Live Deployment Link</label>
-                                        <input type="url" style={styles.formInput} placeholder="https://..." value={liveDemoUrl} onChange={(e) => setLiveDemoUrl(e.target.value)} />
-                                    </div>
+                                    <div style={styles.formGroup}><label style={styles.formLabel}>GitHub Link</label><input type="url" style={styles.formInput} value={githubUrl} onChange={(e) => setGithubUrl(e.target.value)} /></div>
+                                    <div style={styles.formGroup}><label style={styles.formLabel}>Live Link</label><input type="url" style={styles.formInput} value={liveDemoUrl} onChange={(e) => setLiveDemoUrl(e.target.value)} /></div>
                                 </div>
-                                <div style={styles.formGroup}>
-                                    <label style={styles.formLabel}>Image Static URL Path</label>
-                                    <input type="text" style={styles.formInput} placeholder="https://images.com/preview.png" value={imageUrl} onChange={(e) => setImageUrl(e.target.value)} />
-                                </div>
-                                <div style={styles.formGroup}>
-                                    <label style={styles.formLabel}>Description Context (Max 2000 Chars)</label>
-                                    <textarea rows={4} required style={{ ...styles.formInput, resize: "none" }} placeholder="Provide functional specification logs here..." value={description} onChange={(e) => setDescription(e.target.value)} />
-                                </div>
-                                <div style={styles.modalActionsRow}>
-                                    <button type="button" disabled={isLoading} style={styles.cancelButton} onClick={() => setIsModalOpen(false)}>Cancel</button>
-                                    <button type="submit" disabled={isLoading} style={styles.submitButton}>
-                                        {isLoading ? "Saving..." : editingProjectId ? "Update Entity Object" : "Commit Entity Object"}
-                                    </button>
+                                <div style={styles.formGroup}><label style={styles.formLabel}>Image Static URL</label><input type="text" style={styles.formInput} value={imageUrl} onChange={(e) => setImageUrl(e.target.value)} /></div>
+                                <div style={styles.formGroup}><label style={styles.formLabel}>Description</label><textarea rows={4} required style={{ ...styles.formInput, resize: "none" }} value={description} onChange={(e) => setDescription(e.target.value)} /></div>
+                                <div style={{ display: "flex", gap: "10px", justifyContent: "flex-end", marginTop: "20px" }}>
+                                    <button type="button" onClick={() => setIsModalOpen(false)} style={styles.editButton}>Cancel</button>
+                                    <button type="submit" disabled={isLoading} style={styles.primaryButton}>{isLoading ? "Saving..." : "Commit Entity"}</button>
                                 </div>
                             </form>
                         </div>
@@ -368,61 +530,68 @@ function Admin() {
     );
 }
 
-// Style Configurations
+// Fallback style mappings block
 const styles = {
-    dashboardWrapper: { display: "flex", width: "100%", minHeight: "100vh", backgroundColor: "#f5f5f7", fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" },
-    sidebar: { width: "260px", backgroundColor: "#1d1d1f", color: "#ffffff", display: "flex", flexDirection: "column", padding: "2rem 1.5rem", boxSizing: "border-box" },
-    logoSection: { display: "flex", alignItems: "center", gap: "0.75rem", marginBottom: "3rem" },
-    logoIcon: { fontSize: "1.5rem" },
-    logoText: { fontSize: "1.25rem", fontWeight: "700", letterSpacing: "-0.5px" },
-    navMenu: { display: "flex", flexDirection: "column", gap: "0.5rem", flex: 1 },
-    navItem: { background: "none", border: "none", textAlign: "left", color: "#a1a1a6", padding: "0.75rem 1rem", borderRadius: "8px", fontSize: "0.95rem", fontWeight: "500", cursor: "pointer", width: "100%", fontFamily: "inherit" },
-    navItemActive: { backgroundColor: "rgba(255, 255, 255, 0.1)", color: "#ffffff" },
-    sidebarFooter: { borderTop: "1px solid #333336", paddingTop: "1.5rem" },
-    userTag: { fontSize: "0.95rem", fontWeight: "600", margin: "0 0 0.2rem 0" },
-    roleSubtext: { fontSize: "0.8rem", color: "#86868b" },
-    mainContent: { flex: 1, padding: "3rem 4rem", boxSizing: "border-box", overflowY: "auto" },
-    header: { display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "2rem", flexWrap: "wrap", gap: "1.5rem" },
-    pageTitle: { fontSize: "2.2rem", fontWeight: "700", color: "#1d1d1f", margin: "0 0 0.4rem 0", letterSpacing: "-0.5px" },
-    pageSubtitle: { fontSize: "1rem", color: "#86868b", margin: 0 },
-    primaryButton: { backgroundColor: "#0066cc", color: "#ffffff", border: "none", padding: "0.85rem 1.6rem", borderRadius: "10px", fontSize: "0.95rem", fontWeight: "600", cursor: "pointer", boxShadow: "0 4px 12px rgba(0, 102, 204, 0.15)" },
-    resumeUploadSection: { backgroundColor: "#ffffff", padding: "2rem", borderRadius: "14px", border: "1px solid rgba(0, 0, 0, 0.03)", boxShadow: "0 4px 12px rgba(0, 0, 0, 0.02)", marginBottom: "2.5rem" },
-    resumeForm: { display: "flex", alignItems: "center", gap: "1.5rem", marginTop: "1.25rem", flexWrap: "wrap" },
-    fileInput: { padding: "0.6rem 1rem", borderRadius: "8px", border: "1px solid #e5e5ea", backgroundColor: "#f5f5f7", outline: "none" },
-    detailsGrid: { display: "flex", width: "100%" },
+    authWrapper: { display: "flex", justifyContent: "center", alignItems: "center", height: "100vh", backgroundColor: "#f5f5f7" },
+    authCard: { padding: "40px", width: "400px", backgroundColor: "#fff", borderRadius: "12px", boxShadow: "0 4px 12px rgba(0,0,0,0.1)" },
+    authLogoSection: { display: "flex", alignItems: "center", gap: "10px", marginBottom: "24px" },
+    logoIcon: { fontSize: "24px" },
+    authLogoText: { fontWeight: "bold", fontSize: "16px", color: "#1d1d1f" },
+    authTitle: { margin: "0 0 8px 0", fontSize: "24px", color: "#1d1d1f" },
+    authSubtitle: { margin: "0 0 24px 0", fontSize: "14px", color: "#86868b", lineHeight: "1.4" },
+    formContainer: { display: "flex", flexDirection: "column", gap: "16px" },
+    formGroup: { display: "flex", flexDirection: "column", gap: "6px" },
+    formGroupGrid: { display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px" },
+    formLabel: { fontSize: "12px", fontWeight: "6px", color: "#515154" },
+    formInput: { padding: "10px", borderRadius: "6px", border: "1px solid #d2d2d7", fontSize: "14px" },
+    forgotLink: { fontSize: "12px", color: "#0066cc", cursor: "pointer" },
+    authSubmitBtn: { padding: "12px", borderRadius: "6px", border: "none", backgroundColor: "#0066cc", color: "#fff", fontWeight: "6px", cursor: "pointer" },
+    authToggleText: { textAlign: "center", fontSize: "14px", color: "#515154", marginTop: "20px" },
+    authToggleLink: { color: "#0066cc", cursor: "pointer" },
+    dashboardWrapper: { display: "flex", minHeight: "100vh", backgroundColor: "#f5f5f7" },
+    sidebar: { width: "260px", backgroundColor: "#1d1d1f", color: "#fff", padding: "24px", display: "flex", flexDirection: "column" },
+    logoSection: { display: "flex", alignItems: "center", gap: "10px", marginBottom: "32px" },
+    logoText: { fontSize: "18px", fontWeight: "bold" },
+    navMenu: { display: "flex", flexDirection: "column", gap: "8px", flexGrow: 1 },
+    navItem: { padding: "12px", borderRadius: "6px", border: "none", backgroundColor: "transparent", color: "#a1a1a6", textAlign: "left", cursor: "pointer", fontSize: "14px" },
+    navItemActive: { backgroundColor: "#3a3a3c", color: "#fff", fontWeight: "6px" },
+    sidebarFooter: { marginTop: "auto", display: "flex", flexDirection: "column", gap: "4px" },
+    userTag: { margin: 0, fontWeight: "bold", fontSize: "14px" },
+    roleSubtext: { fontSize: "11px", color: "#86868b", marginBottom: "12px" },
+    logoutBtn: { padding: "8px", borderRadius: "4px", border: "none", backgroundColor: "#ff453a", color: "#fff", cursor: "pointer", fontSize: "12px" },
+    mainContent: { flexGrow: 1, padding: "40px", overflowY: "auto" },
+    header: { display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "32px" },
+    pageTitle: { margin: 0, fontSize: "28px", color: "#1d1d1f" },
+    pageSubtitle: { margin: "4px 0 0 0", fontSize: "14px", color: "#86868b" },
+    primaryButton: { padding: "10px 16px", borderRadius: "6px", border: "none", backgroundColor: "#0066cc", color: "#fff", fontWeight: "6px", cursor: "pointer" },
+    resumeUploadSection: { backgroundColor: "#fff", padding: "20px", borderRadius: "12px", marginBottom: "24px", boxShadow: "0 2px 4px rgba(0,0,0,0.05)" },
+    sectionTitle: { margin: "0 0 8px 0", fontSize: "18px", color: "#1d1d1f" },
+    resumeForm: { display: "flex", gap: "16px", alignItems: "center", marginTop: "12px" },
+    fileInput: { fontSize: "14px" },
+    detailsGrid: { display: "flex", flexDirection: "column", gap: "24px" },
     fullWidthColumn: { width: "100%" },
-    sectionHeaderRow: { display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "1.5rem", borderBottom: "1px solid #e5e5ea", paddingBottom: "0.75rem" },
-    sectionTitle: { fontSize: "1.4rem", fontWeight: "700", color: "#1d1d1f", margin: 0 },
-    counterBadge: { fontSize: "0.8rem", fontWeight: "700", backgroundColor: "#e5e5ea", color: "#1d1d1f", padding: "0.25rem 0.65rem", borderRadius: "20px" },
-    cardListContainer: { display: "flex", flexDirection: "column", gap: "1.25rem" },
-    emptyText: { fontSize: "1rem", color: "#86868b", fontStyle: "italic", margin: "1rem 0" },
-    dataCard: { backgroundColor: "#ffffff", padding: "1.5rem", borderRadius: "14px", boxShadow: "0 4px 12px rgba(0, 0, 0, 0.02)", border: "1px solid rgba(0, 0, 0, 0.03)" },
-    cardHeader: { display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "0.75rem", gap: "1rem" },
-    cardMainTitle: { fontSize: "1.15rem", fontWeight: "700", color: "#1d1d1f", margin: 0 },
-    monoIdBadge: { fontFamily: "monospace", fontSize: "0.8rem", backgroundColor: "#f5f5f7", color: "#515154", padding: "0.2rem 0.5rem", borderRadius: "4px", fontWeight: "600" },
-    cardSubtitle: { fontSize: "0.9rem", color: "#515154", margin: "0 0 0.5rem 0" },
-    cardDescText: { fontSize: "0.9rem", color: "#86868b", lineHeight: "1.45", margin: "0 0 1rem 0" },
-    actionRowContainer: { display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: "1rem", borderTop: "1px solid #f5f5f7", paddingTop: "0.75rem" },
-    linksRow: { display: "flex", gap: "1rem" },
-    metaLink: { fontSize: "0.85rem", color: "#0066cc", fontWeight: "600", textDecoration: "none" },
-    crudButtonsRow: { display: "flex", gap: "0.75rem" },
-    editButton: { backgroundColor: "#f5f5f7", border: "none", color: "#0066cc", padding: "0.4rem 0.8rem", borderRadius: "6px", fontSize: "0.85rem", fontWeight: "600", cursor: "pointer" },
-    deleteButton: { backgroundColor: "rgba(255, 59, 48, 0.1)", border: "none", color: "#ff3b30", padding: "0.4rem 0.8rem", borderRadius: "6px", fontSize: "0.85rem", fontWeight: "600", cursor: "pointer" },
-    messageCard: { backgroundColor: "#ffffff", padding: "1.5rem", borderRadius: "14px", boxShadow: "0 4px 12px rgba(0, 0, 0, 0.02)", border: "1px solid rgba(0, 0, 0, 0.03)", borderLeft: "4px solid #0066cc" },
-    messageSenderName: { fontSize: "1.1rem", fontWeight: "700", color: "#1d1d1f", margin: 0 },
-    messageEmailLink: { fontSize: "0.85rem", color: "#0066cc", textDecoration: "none" },
-    messageContentText: { fontSize: "0.95rem", color: "#515154", lineHeight: "1.5", backgroundColor: "#f5f5f7", padding: "0.85rem 1rem", borderRadius: "8px", margin: "0.5rem 0 0 0" },
-    modalOverlay: { position: "fixed", top: 0, left: 0, right: 0, bottom: 0, backgroundColor: "rgba(0,0,0,0.4)", backdropFilter: "blur(4px)", display: "flex", justifyContent: "center", alignItems: "center", zIndex: 1000 },
-    modalContent: { backgroundColor: "#ffffff", padding: "2.5rem", borderRadius: "16px", width: "100%", maxWidth: "550px", boxShadow: "0 20px 40px rgba(0,0,0,0.15)" },
-    modalTitle: { fontSize: "1.5rem", fontWeight: "700", color: "#1d1d1f", margin: "0 0 1.5rem 0" },
-    formContainer: { display: "flex", flexDirection: "column", gap: "1.25rem" },
-    formGroup: { display: "flex", flexDirection: "column", gap: "0.5rem" },
-    formGroupGrid: { display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1rem" },
-    formLabel: { fontSize: "0.9rem", fontWeight: "600", color: "#515154" },
-    formInput: { padding: "0.75rem 1rem", borderRadius: "8px", border: "1px solid #e5e5ea", fontSize: "0.95rem", outline: "none", fontFamily: "inherit" },
-    modalActionsRow: { display: "flex", justifyContent: "flex-end", gap: "1rem", marginTop: "1rem" },
-    cancelButton: { backgroundColor: "#f5f5f7", border: "none", color: "#1d1d1f", padding: "0.75rem 1.25rem", borderRadius: "8px", fontWeight: "600", cursor: "pointer" },
-    submitButton: { backgroundColor: "#0066cc", border: "none", color: "#ffffff", padding: "0.75rem 1.25rem", borderRadius: "8px", fontWeight: "600", cursor: "pointer" }
+    sectionHeaderRow: { display: "flex", alignItems: "center", gap: "12px", marginBottom: "16px" },
+    counterBadge: { padding: "4px 8px", borderRadius: "12px", backgroundColor: "#e3e3e8", color: "#515154", fontSize: "12px", fontWeight: "6px" },
+    cardListContainer: { display: "flex", flexDirection: "column", gap: "16px" },
+    dataCard: { padding: "20px", backgroundColor: "#fff", borderRadius: "12px", boxShadow: "0 2px 4px rgba(0,0,0,0.05)" },
+    cardHeader: { display: "flex", justifyContent: "space-between", alignItems: "center" },
+    cardMainTitle: { margin: 0, fontSize: "16px", color: "#1d1d1f" },
+    monoIdBadge: { fontFamily: "monospace", fontSize: "12px", color: "#86868b" },
+    cardSubtitle: { fontSize: "14px", color: "#515154", margin: "8px 0" },
+    cardDescText: { fontSize: "14px", color: "#86868b", margin: "0 0 16px 0", lineHeight: "1.4" },
+    actionRowContainer: { display: "flex", justifyContent: "space-between", alignItems: "center" },
+    linksRow: { display: "flex", gap: "12px" },
+    metaLink: { fontSize: "14px", color: "#0066cc", textDecoration: "none" },
+    crudButtonsRow: { display: "flex", gap: "8px" },
+    editButton: { padding: "6px 12px", borderRadius: "4px", border: "1px solid #d2d2d7", backgroundColor: "#fff", cursor: "pointer", fontSize: "12px" },
+    deleteButton: { padding: "6px 12px", borderRadius: "4px", border: "none", backgroundColor: "#ff453a", color: "#fff", cursor: "pointer", fontSize: "12px" },
+    messageCard: { padding: "20px", backgroundColor: "#fff", borderRadius: "12px", boxShadow: "0 2px 4px rgba(0,0,0,0.05)" },
+    messageSenderName: { margin: 0, fontSize: "16px", color: "#1d1d1f" },
+    messageEmailLink: { fontSize: "12px", color: "#0066cc", textDecoration: "none" },
+    messageContentText: { fontSize: "14px", color: "#1d1d1f", margin: "12px 0 0 0", fontStyle: "italic" },
+    modalOverlay: { position: "fixed", top: 0, left: 0, right: 0, bottom: 0, backgroundColor: "rgba(0,0,0,0.4)", display: "flex", justifyContent: "center", alignItems: "center" },
+    modalContent: { backgroundColor: "#fff", padding: "32px", borderRadius: "12px", width: "500px", boxShadow: "0 4px 20px rgba(0,0,0,0.15)" },
+    modalTitle: { margin: "0 0 20px 0", fontSize: "20px", color: "#1d1d1f" }
 };
 
 export default Admin;
