@@ -245,9 +245,10 @@ function Admin() {
         Swal.fire({
             title: "Delete Project?",
             text: "Are you sure you want to delete this project record from the database?",
-            icon: "danger",
+            icon: "warning",
             showCancelButton: true,
             confirmButtonColor: "#ff453a",
+            cancelButtonColor: "#3a3a3c",
             confirmButtonText: "Yes, Delete Record"
         }).then(async (result) => {
             if (result.isConfirmed) {
@@ -274,6 +275,7 @@ function Admin() {
             icon: "warning",
             showCancelButton: true,
             confirmButtonColor: "#ff453a",
+            cancelButtonColor: "#3a3a3c",
             confirmButtonText: "Yes, Delete It"
         }).then(async (result) => {
             if (result.isConfirmed) {
@@ -331,7 +333,7 @@ function Admin() {
                 <div style={styles.authCard}>
                     <div style={styles.authLogoSection}>
                         <div style={styles.logoIcon}>⚡</div>
-                        <span style={styles.authLogoText}>CorePanel Admin Secure Gateway</span>
+                        <span style={styles.authLogoText}>CorePanel Secure Gateway</span>
                     </div>
 
                     {authMode === "login" ? (
@@ -351,7 +353,7 @@ function Admin() {
                                     />
                                 </div>
                                 <div style={styles.formGroup}>
-                                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: "8px", flexWrap: "wrap" }}>
                                         <label style={styles.formLabel}>Secure Password Matrix</label>
                                         <span style={styles.forgotLink} onClick={() => setAuthMode("forgot")}>
                                             Forgot Password?
@@ -367,7 +369,7 @@ function Admin() {
                                     />
                                 </div>
                                 <button type="submit" disabled={authLoading} style={{...styles.authSubmitBtn, width: '100%'}}>
-                                    {authLoading ? "Verifying Keys..." : "Authorize System Handshake"}
+                                    {authLoading ? "Verifying Keys..." : "Authorize Handshake"}
                                 </button>
                             </form>
                         </div>
@@ -377,7 +379,7 @@ function Admin() {
                             <p style={styles.authSubtitle}>Send a secure credential reset trigger link to your system email</p>
                             <form onSubmit={handleForgotSubmit} style={styles.formContainer}>
                                 <div style={styles.formGroup}>
-                                    <label style={styles.formLabel}>Registered Admin Admin Email</label>
+                                    <label style={styles.formLabel}>Registered Admin Email</label>
                                     <input 
                                         type="email" 
                                         required 
@@ -428,7 +430,7 @@ function Admin() {
 
             <main style={styles.mainContent}>
                 <header style={styles.header}>
-                    <div>
+                    <div style={{ flex: 1, minWidth: "200px" }}>
                         <h1 style={styles.pageTitle}>{currentTab === "overview" ? "System Console" : "Messages Inbox"}</h1>
                         <p style={styles.pageSubtitle}>{currentTab === "overview" ? "Live database views tracking portfolio projects." : "Review user inquiries."}</p>
                     </div>
@@ -441,7 +443,7 @@ function Admin() {
                         <form onSubmit={handleResumeUpload} style={styles.resumeForm}>
                             <input type="file" accept=".pdf,.doc,.docx" style={styles.fileInput} onChange={(e) => setResumeFile(e.target.files[0])} />
                             <button type="submit" disabled={isUploadingResume} style={{ ...styles.primaryButton, backgroundColor: isUploadingResume ? "#a1a1a6" : "#0066cc" }}>
-                                {isUploadingResume ? "Uploading..." : "Upload New Resume File"}
+                                {isUploadingResume ? "Uploading..." : "Upload New File"}
                             </button>
                         </form>
                     </section>
@@ -487,11 +489,11 @@ function Admin() {
                                 {messages.length === 0 ? <p style={styles.emptyText}>No contact entries exist.</p> : messages.map((msg) => (
                                     <div key={msg.id} style={styles.messageCard}>
                                         <div style={styles.cardHeader}>
-                                            <div>
+                                            <div style={{ flex: 1, minWidth: "150px" }}>
                                                 <h3 style={styles.messageSenderName}>{msg.name}</h3>
                                                 <a href={`mailto:${msg.email}`} style={styles.messageEmailLink}>{msg.email}</a>
                                             </div>
-                                            <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                                            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap', justifyContent: 'flex-end' }}>
                                                 <span style={styles.monoIdBadge}>ID: {msg.id}</span>
                                                 <button onClick={() => handleDeleteMessage(msg.id)} style={styles.deleteButton}>Delete</button>
                                             </div>
@@ -517,7 +519,7 @@ function Admin() {
                                 </div>
                                 <div style={styles.formGroup}><label style={styles.formLabel}>Image Static URL</label><input type="text" style={styles.formInput} value={imageUrl} onChange={(e) => setImageUrl(e.target.value)} /></div>
                                 <div style={styles.formGroup}><label style={styles.formLabel}>Description</label><textarea rows={4} required style={{ ...styles.formInput, resize: "none" }} value={description} onChange={(e) => setDescription(e.target.value)} /></div>
-                                <div style={{ display: "flex", gap: "10px", justifyContent: "flex-end", marginTop: "20px" }}>
+                                <div style={{ display: "flex", gap: "10px", justifyContent: "flex-end", marginTop: "20px", flexWrap: "wrap" }}>
                                     <button type="button" onClick={() => setIsModalOpen(false)} style={styles.editButton}>Cancel</button>
                                     <button type="submit" disabled={isLoading} style={styles.primaryButton}>{isLoading ? "Saving..." : "Commit Entity"}</button>
                                 </div>
@@ -526,72 +528,92 @@ function Admin() {
                     </div>
                 )}
             </main>
+            
+            {/* Embedded global media overrides for clean fluid responsive screen handling */}
+            <style dangerouslySetInnerHTML={{__html: `
+                @media (max-width: 768px) {
+                    div[style*="dashboardWrapper"] { flex-direction: column !important; }
+                    aside[style*="sidebar"] { width: 100% !important; box-sizing: border-box !important; position: relative !important; top: 0 !important; }
+                    nav[style*="navMenu"] { flex-direction: row !important; overflow-x: auto !important; padding-bottom: 10px !important; }
+                    button[style*="navItem"] { white-space: nowrap !important; }
+                    header[style*="header"] { flex-direction: column !important; align-items: flex-start !important; gap: 16px !important; }
+                    button[style*="primaryButton"] { width: 100% !important; text-align: center !important; }
+                    form[style*="resumeForm"] { flex-direction: column !important; align-items: stretch !important; }
+                    input[style*="fileInput"] { width: 100% !important; margin-bottom: 8px !important; }
+                    div[style*="cardHeader"] { flex-direction: column !important; align-items: flex-start !important; gap: 8px !important; }
+                    div[style*="actionRowContainer"] { flex-direction: column !important; align-items: stretch !important; gap: 16px !important; }
+                    div[style*="crudButtonsRow"] { justify-content: space-between !important; }
+                    div[style*="formGroupGrid"] { grid-template-columns: 1fr !important; }
+                    div[style*="modalContent"] { width: 90% !important; margin: 20px !important; max-height: 85vh !important; overflow-y: auto !important; }
+                }
+            `}} />
         </div>
     );
 }
 
-// Fallback style mappings block
+// Fixed Premium Inline Layout Blueprint with System Typography Integration
 const styles = {
-    authWrapper: { display: "flex", justifyContent: "center", alignItems: "center", height: "100vh", backgroundColor: "#f5f5f7" },
-    authCard: { padding: "40px", width: "400px", backgroundColor: "#fff", borderRadius: "12px", boxShadow: "0 4px 12px rgba(0,0,0,0.1)" },
+    authWrapper: { display: "flex", justifyContent: "center", alignItems: "center", minHeight: "100vh", backgroundColor: "#f5f5f7", padding: "20px", boxSizing: "border-box", fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" },
+    authCard: { padding: "32px", width: "100%", maxWidth: "420px", backgroundColor: "#fff", borderRadius: "16px", boxShadow: "0 8px 30px rgba(0,0,0,0.06)", boxSizing: "border-box" },
     authLogoSection: { display: "flex", alignItems: "center", gap: "10px", marginBottom: "24px" },
-    logoIcon: { fontSize: "24px" },
-    authLogoText: { fontWeight: "bold", fontSize: "16px", color: "#1d1d1f" },
-    authTitle: { margin: "0 0 8px 0", fontSize: "24px", color: "#1d1d1f" },
+    logoIcon: { fontSize: "22px" },
+    authLogoText: { fontWeight: "700", fontSize: "15px", color: "#1d1d1f", letterSpacing: "-0.2px" },
+    authTitle: { margin: "0 0 8px 0", fontSize: "24px", color: "#1d1d1f", fontWeight: "700", letterSpacing: "-0.5px" },
     authSubtitle: { margin: "0 0 24px 0", fontSize: "14px", color: "#86868b", lineHeight: "1.4" },
     formContainer: { display: "flex", flexDirection: "column", gap: "16px" },
     formGroup: { display: "flex", flexDirection: "column", gap: "6px" },
     formGroupGrid: { display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px" },
-    formLabel: { fontSize: "12px", fontWeight: "6px", color: "#515154" },
-    formInput: { padding: "10px", borderRadius: "6px", border: "1px solid #d2d2d7", fontSize: "14px" },
-    forgotLink: { fontSize: "12px", color: "#0066cc", cursor: "pointer" },
-    authSubmitBtn: { padding: "12px", borderRadius: "6px", border: "none", backgroundColor: "#0066cc", color: "#fff", fontWeight: "6px", cursor: "pointer" },
+    formLabel: { fontSize: "12px", fontWeight: "600", color: "#515154" },
+    formInput: { padding: "12px", borderRadius: "8px", border: "1px solid #d2d2d7", fontSize: "14px", outline: "none", transition: "border-color 0.2s ease", boxSizing: "border-box" },
+    forgotLink: { fontSize: "12px", color: "#0066cc", cursor: "pointer", fontWeight: "500" },
+    authSubmitBtn: { padding: "12px", borderRadius: "8px", border: "none", backgroundColor: "#0066cc", color: "#fff", fontWeight: "600", cursor: "pointer", transition: "background-color 0.2s ease" },
     authToggleText: { textAlign: "center", fontSize: "14px", color: "#515154", marginTop: "20px" },
-    authToggleLink: { color: "#0066cc", cursor: "pointer" },
-    dashboardWrapper: { display: "flex", minHeight: "100vh", backgroundColor: "#f5f5f7" },
-    sidebar: { width: "260px", backgroundColor: "#1d1d1f", color: "#fff", padding: "24px", display: "flex", flexDirection: "column" },
+    authToggleLink: { color: "#0066cc", cursor: "pointer", fontWeight: "500" },
+    dashboardWrapper: { display: "flex", minHeight: "100vh", backgroundColor: "#f5f5f7", fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" },
+    sidebar: { width: "260px", backgroundColor: "#1d1d1f", color: "#fff", padding: "24px", display: "flex", flexDirection: "column", shrink: 0 },
     logoSection: { display: "flex", alignItems: "center", gap: "10px", marginBottom: "32px" },
-    logoText: { fontSize: "18px", fontWeight: "bold" },
+    logoText: { fontSize: "18px", fontWeight: "700", letterSpacing: "-0.3px" },
     navMenu: { display: "flex", flexDirection: "column", gap: "8px", flexGrow: 1 },
-    navItem: { padding: "12px", borderRadius: "6px", border: "none", backgroundColor: "transparent", color: "#a1a1a6", textAlign: "left", cursor: "pointer", fontSize: "14px" },
-    navItemActive: { backgroundColor: "#3a3a3c", color: "#fff", fontWeight: "6px" },
-    sidebarFooter: { marginTop: "auto", display: "flex", flexDirection: "column", gap: "4px" },
-    userTag: { margin: 0, fontWeight: "bold", fontSize: "14px" },
-    roleSubtext: { fontSize: "11px", color: "#86868b", marginBottom: "12px" },
-    logoutBtn: { padding: "8px", borderRadius: "4px", border: "none", backgroundColor: "#ff453a", color: "#fff", cursor: "pointer", fontSize: "12px" },
-    mainContent: { flexGrow: 1, padding: "40px", overflowY: "auto" },
-    header: { display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "32px" },
-    pageTitle: { margin: 0, fontSize: "28px", color: "#1d1d1f" },
+    navItem: { padding: "12px 16px", borderRadius: "8px", border: "none", backgroundColor: "transparent", color: "#a1a1a6", textAlign: "left", cursor: "pointer", fontSize: "14px", fontWeight: "500", transition: "all 0.2s ease" },
+    navItemActive: { backgroundColor: "#3a3a3c", color: "#fff", fontWeight: "600" },
+    sidebarFooter: { marginTop: "auto", display: "flex", flexDirection: "column", gap: "4px", paddingTop: "20px", borderTop: "1px solid #3a3a3c" },
+    userTag: { margin: 0, fontWeight: "600", fontSize: "14px" },
+    roleSubtext: { fontSize: "12px", color: "#86868b", marginBottom: "12px" },
+    logoutBtn: { padding: "10px", borderRadius: "6px", border: "none", backgroundColor: "#ff453a", color: "#fff", cursor: "pointer", fontSize: "12px", fontWeight: "600" },
+    mainContent: { flexGrow: 1, padding: "clamp(16px, 4vw, 40px)", overflowY: "auto", boxSizing: "border-box", width: "100%" },
+    header: { display: "flex", justifyContent: "space-between", alignItems: "center", gap: "20px", marginBottom: "32px", flexWrap: "wrap" },
+    pageTitle: { margin: 0, fontSize: "28px", color: "#1d1d1f", fontWeight: "700", letterSpacing: "-0.6px" },
     pageSubtitle: { margin: "4px 0 0 0", fontSize: "14px", color: "#86868b" },
-    primaryButton: { padding: "10px 16px", borderRadius: "6px", border: "none", backgroundColor: "#0066cc", color: "#fff", fontWeight: "6px", cursor: "pointer" },
-    resumeUploadSection: { backgroundColor: "#fff", padding: "20px", borderRadius: "12px", marginBottom: "24px", boxShadow: "0 2px 4px rgba(0,0,0,0.05)" },
-    sectionTitle: { margin: "0 0 8px 0", fontSize: "18px", color: "#1d1d1f" },
+    primaryButton: { padding: "12px 20px", borderRadius: "8px", border: "none", backgroundColor: "#0066cc", color: "#fff", fontWeight: "600", cursor: "pointer", fontSize: "14px", transition: "background-color 0.2s ease" },
+    resumeUploadSection: { backgroundColor: "#fff", padding: "24px", borderRadius: "16px", marginBottom: "24px", boxShadow: "0 2px 12px rgba(0,0,0,0.02)" },
+    sectionTitle: { margin: "0 0 8px 0", fontSize: "18px", color: "#1d1d1f", fontWeight: "700", letterSpacing: "-0.2px" },
     resumeForm: { display: "flex", gap: "16px", alignItems: "center", marginTop: "12px" },
-    fileInput: { fontSize: "14px" },
-    detailsGrid: { display: "flex", flexDirection: "column", gap: "24px" },
+    fileInput: { fontSize: "14px", color: "#515154" },
+    detailsGrid: { display: "flex", flexDirection: "column", gap: "24px", width: "100%" },
     fullWidthColumn: { width: "100%" },
-    sectionHeaderRow: { display: "flex", alignItems: "center", gap: "12px", marginBottom: "16px" },
-    counterBadge: { padding: "4px 8px", borderRadius: "12px", backgroundColor: "#e3e3e8", color: "#515154", fontSize: "12px", fontWeight: "6px" },
+    sectionHeaderRow: { display: "flex", alignItems: "center", gap: "12px", marginBottom: "16px", flexWrap: "wrap" },
+    counterBadge: { padding: "4px 10px", borderRadius: "12px", backgroundColor: "#e3e3e8", color: "#515154", fontSize: "12px", fontWeight: "600" },
     cardListContainer: { display: "flex", flexDirection: "column", gap: "16px" },
-    dataCard: { padding: "20px", backgroundColor: "#fff", borderRadius: "12px", boxShadow: "0 2px 4px rgba(0,0,0,0.05)" },
-    cardHeader: { display: "flex", justifyContent: "space-between", alignItems: "center" },
-    cardMainTitle: { margin: 0, fontSize: "16px", color: "#1d1d1f" },
-    monoIdBadge: { fontFamily: "monospace", fontSize: "12px", color: "#86868b" },
+    dataCard: { padding: "24px", backgroundColor: "#fff", borderRadius: "16px", boxShadow: "0 2px 12px rgba(0,0,0,0.02)", display: "flex", flexDirection: "column" },
+    cardHeader: { display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: "12px" },
+    cardMainTitle: { margin: 0, fontSize: "18px", color: "#1d1d1f", fontWeight: "600" },
+    monoIdBadge: { fontFamily: "monospace", fontSize: "12px", color: "#86868b", backgroundColor: "#f5f5f7", padding: "2px 6px", borderRadius: "4px" },
     cardSubtitle: { fontSize: "14px", color: "#515154", margin: "8px 0" },
-    cardDescText: { fontSize: "14px", color: "#86868b", margin: "0 0 16px 0", lineHeight: "1.4" },
-    actionRowContainer: { display: "flex", justifyContent: "space-between", alignItems: "center" },
-    linksRow: { display: "flex", gap: "12px" },
-    metaLink: { fontSize: "14px", color: "#0066cc", textDecoration: "none" },
+    cardDescText: { fontSize: "14px", color: "#86868b", margin: "0 0 20px 0", lineHeight: "1.5" },
+    actionRowContainer: { display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: "auto", gap: "12px" },
+    linksRow: { display: "flex", gap: "16px" },
+    metaLink: { fontSize: "14px", color: "#0066cc", textDecoration: "none", fontWeight: "500" },
     crudButtonsRow: { display: "flex", gap: "8px" },
-    editButton: { padding: "6px 12px", borderRadius: "4px", border: "1px solid #d2d2d7", backgroundColor: "#fff", cursor: "pointer", fontSize: "12px" },
-    deleteButton: { padding: "6px 12px", borderRadius: "4px", border: "none", backgroundColor: "#ff453a", color: "#fff", cursor: "pointer", fontSize: "12px" },
-    messageCard: { padding: "20px", backgroundColor: "#fff", borderRadius: "12px", boxShadow: "0 2px 4px rgba(0,0,0,0.05)" },
-    messageSenderName: { margin: 0, fontSize: "16px", color: "#1d1d1f" },
-    messageEmailLink: { fontSize: "12px", color: "#0066cc", textDecoration: "none" },
-    messageContentText: { fontSize: "14px", color: "#1d1d1f", margin: "12px 0 0 0", fontStyle: "italic" },
-    modalOverlay: { position: "fixed", top: 0, left: 0, right: 0, bottom: 0, backgroundColor: "rgba(0,0,0,0.4)", display: "flex", justifyContent: "center", alignItems: "center" },
-    modalContent: { backgroundColor: "#fff", padding: "32px", borderRadius: "12px", width: "500px", boxShadow: "0 4px 20px rgba(0,0,0,0.15)" },
-    modalTitle: { margin: "0 0 20px 0", fontSize: "20px", color: "#1d1d1f" }
+    editButton: { padding: "8px 14px", borderRadius: "6px", border: "1px solid #d2d2d7", backgroundColor: "#fff", cursor: "pointer", fontSize: "13px", fontWeight: "500", transition: "background-color 0.2s ease" },
+    deleteButton: { padding: "8px 14px", borderRadius: "6px", border: "none", backgroundColor: "#ff453a", color: "#fff", cursor: "pointer", fontSize: "13px", fontWeight: "600", transition: "background-color 0.2s ease" },
+    messageCard: { padding: "24px", backgroundColor: "#fff", borderRadius: "16px", boxShadow: "0 2px 12px rgba(0,0,0,0.02)" },
+    messageSenderName: { margin: 0, fontSize: "16px", color: "#1d1d1f", fontWeight: "600" },
+    messageEmailLink: { fontSize: "14px", color: "#0066cc", textDecoration: "none" },
+    messageContentText: { fontSize: "14px", color: "#3a3a3c", margin: "16px 0 0 0", lineHeight: "1.5", fontStyle: "italic", backgroundColor: "#f5f5f7", padding: "16px", borderRadius: "8px" },
+    emptyText: { color: "#86868b", fontSize: "14px", textAlign: "center", margin: "40px 0" },
+    modalOverlay: { position: "fixed", top: 0, left: 0, right: 0, bottom: 0, backgroundColor: "rgba(0,0,0,0.4)", display: "flex", justifyContent: "center", alignItems: "center", zIndex: 100000, padding: "20px" },
+    modalContent: { backgroundColor: "#fff", borderRadius: "16px", padding: "32px", width: "100%", maxWidth: "560px", boxShadow: "0 12px 40px rgba(0,0,0,0.15)", boxSizing: "border-box" },
+    modalTitle: { margin: "0 0 24px 0", fontSize: "20px", color: "#1d1d1f", fontWeight: "700", letterSpacing: "-0.4px" }
 };
 
 export default Admin;
