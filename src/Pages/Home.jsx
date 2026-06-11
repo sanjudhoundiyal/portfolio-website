@@ -55,32 +55,114 @@ function Home() {
 
     return (
         <div style={styles.pageWrapper}>
+            {/* HARDWARE ACCELERATED PRO ANIMATIONS */}
+            <style>{`
+                @keyframes professionalFadeUp {
+                    0% {
+                        opacity: 0;
+                        transform: translate3d(0, 20px, 0);
+                    }
+                    100% {
+                        opacity: 1;
+                        transform: translate3d(0, 0, 0);
+                    }
+                }
+
+                @keyframes softPulse {
+                    0% { transform: scale(0.95); opacity: 0.5; }
+                    50% { transform: scale(1.15); opacity: 1; }
+                    100% { transform: scale(0.95); opacity: 0.5; }
+                }
+
+                .animate-hero {
+                    animation: professionalFadeUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+                    will-change: transform, opacity;
+                }
+
+                .pulse-dot {
+                    animation: softPulse 2s infinite ease-in-out;
+                }
+
+                /* Mobile Smooth Interactive Cards */
+                .interactive-card {
+                    transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), 
+                                box-shadow 0.4s cubic-bezier(0.16, 1, 0.3, 1), 
+                                border-color 0.4s cubic-bezier(0.16, 1, 0.3, 1) !important;
+                    will-change: transform, box-shadow;
+                }
+
+                @media (min-width: 769px) {
+                    .interactive-card:hover {
+                        transform: translate3d(0, -6px, 0);
+                        box-shadow: 0 20px 38px rgba(0, 102, 204, 0.06) !important;
+                        border-color: rgba(0, 102, 204, 0.2) !important;
+                    }
+                }
+
+                /* Mobile-specific touch feedback (No heavy scale on tap to prevent layout breaking) */
+                @media (max-width: 768px) {
+                    .interactive-card:active {
+                        background-color: #fafbfc !important;
+                        border-color: rgba(0, 102, 204, 0.15) !important;
+                    }
+                }
+
+                /* Button Micro-interactions */
+                .btn-interaction {
+                    transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1) !important;
+                }
+                .btn-interaction:hover {
+                    opacity: 0.95;
+                    transform: translate3d(0, -1px, 0);
+                }
+                .btn-interaction:active {
+                    transform: translate3d(0, 1px, 0) scale(0.98);
+                }
+
+                /* Animated Text Arrows */
+                .arrow-link {
+                    display: inline-flex;
+                    align-items: center;
+                    transition: color 0.2s ease;
+                }
+                .arrow-link span {
+                    transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+                }
+                .arrow-link:hover span {
+                    transform: translate3d(5px, 0, 0);
+                }
+            `}</style>
+
             {/* HERO SECTION */}
             <section style={{
                 ...styles.heroSection,
-                padding: isMobile ? "4rem 1rem" : "6rem 2rem"
+                padding: isMobile ? "4.5rem 1.25rem 3rem" : "7.5rem 2rem 5rem"
             }}>
-                <div style={{...styles.heroContainer, textAlign: isMobile ? "center" : "left"}}>
-                    <span style={styles.badgeText}>Available for Opportunities</span>
-                    <h1 style={{...styles.mainTitle, fontSize: isMobile ? "2.5rem" : "3.5rem"}}>
+                <div className="animate-hero" style={{...styles.heroContainer, textAlign: isMobile ? "center" : "left"}}>
+                    <span style={{...styles.badgeText, margin: isMobile ? "0 auto" : "0 auto 0 0"}}>
+                        <span className="pulse-dot" style={styles.badgePulse}></span> Available for Opportunities
+                    </span>
+                    <h1 style={{...styles.mainTitle, fontSize: isMobile ? "2.4rem" : "3.8rem"}}>
                         Hi, I am Sanjay<span style={{ color: "#0066cc" }}>.</span>
                     </h1>
-                    <p style={{...styles.bioText, fontSize: isMobile ? "1.1rem" : "1.25rem"}}>
+                    <p style={{...styles.bioText, fontSize: isMobile ? "1.05rem" : "1.25rem"}}>
                         A passionate software engineer focused on building robust backend systems, distributed architectures, and clean, high-performance web applications. I turn complex database problems into elegant, scalable digital experiences.
                     </p>
                     <div style={{
                         ...styles.ctaGroup,
                         flexDirection: isMobile ? "column" : "row",
-                        alignItems: isMobile ? "stretch" : "center"
+                        alignItems: isMobile ? "stretch" : "center",
+                        gap: isMobile ? "0.8rem" : "1rem"
                     }}>
-                        <a href="/projects" style={styles.primaryBtn}>Explore My Work</a>
+                        <a href="/projects" className="btn-interaction" style={{...styles.primaryBtn, backgroundColor: "#0066cc"}}>Explore My Work</a>
                         
                         {!isDownloaded && (
                             <button 
                                 onClick={handleDownloadResume} disabled={isDownloading}
+                                className="btn-interaction"
                                 style={{
                                     ...styles.resumeBtn,
-                                    backgroundColor: isDownloading ? "#86868b" : "#0066cc",
+                                    backgroundColor: isDownloading ? "#86868b" : "#1d1d1f",
                                     cursor: isDownloading ? "not-allowed" : "pointer"
                                 }}
                             >
@@ -88,30 +170,31 @@ function Home() {
                             </button>
                         )}
                         
-                        <a href="/contact" style={styles.secondaryBtn}>Get In Touch</a>
+                        <a href="/contact" className="btn-interaction" style={styles.secondaryBtn}>Get In Touch</a>
                     </div>
                 </div>
             </section>
 
             {/* CORE EXPERTISE MATRICES */}
-            <section style={{...styles.skillsSection, padding: isMobile ? "3rem 1rem" : "5rem 2rem"}}>
+            <section style={{...styles.skillsSection, padding: isMobile ? "3.5rem 1.25rem" : "5.5rem 2rem"}}>
                 <div style={styles.container}>
-                    <h2 style={{...styles.sectionHeading, textAlign: isMobile ? "center" : "left"}}>Core Competencies</h2>
+                    <h2 style={{...styles.sectionHeading, textAlign: isMobile ? "center" : "left", fontSize: isMobile ? "1.8rem" : "2.2rem"}}>Core Competencies</h2>
                     <div style={{
                         ...styles.skillsGrid,
-                        gridTemplateColumns: isMobile ? "1fr" : "repeat(auto-fit, minmax(280px, 1fr))"
+                        gridTemplateColumns: isMobile ? "1fr" : "repeat(auto-fit, minmax(310px, 1fr))",
+                        gap: isMobile ? "1.25rem" : "1.75rem"
                     }}>
-                        <div style={styles.skillCard}>
+                        <div className="interactive-card" style={styles.skillCard}>
                             <div style={styles.skillIcon}>⚙️</div>
                             <h3 style={styles.skillTitle}>Backend Engineering</h3>
                             <p style={styles.skillDesc}>Designing enterprise REST APIs, microservices architectures, and secure business logic processing units.</p>
                         </div>
-                        <div style={styles.skillCard}>
+                        <div className="interactive-card" style={styles.skillCard}>
                             <div style={styles.skillIcon}>📊</div>
                             <h3 style={styles.skillTitle}>Database Architecture</h3>
                             <p style={styles.skillDesc}>Data modeling, complex query optimizations, and data persistence management across relational storage pipelines.</p>
                         </div>
-                        <div style={styles.skillCard}>
+                        <div className="interactive-card" style={styles.skillCard}>
                             <div style={styles.skillIcon}>💻</div>
                             <h3 style={styles.skillTitle}>Full-Stack Integration</h3>
                             <p style={styles.skillDesc}>Bridging secure data pipelines seamlessly into interactive, dynamic, responsive frontend responsive views.</p>
@@ -122,30 +205,34 @@ function Home() {
 
             {/* LIVE SYSTEM HIGHLIGHTS */}
             {featuredProjects.length > 0 && (
-                <section style={{...styles.featuredSection, padding: isMobile ? "3rem 1rem" : "5rem 2rem"}}>
+                <section style={{...styles.featuredSection, padding: isMobile ? "3.5rem 1.25rem" : "5.5rem 2rem"}}>
                     <div style={styles.container}>
                         <div style={{
                             ...styles.sectionHeaderRow,
                             flexDirection: isMobile ? "column" : "row",
-                            gap: "1rem",
-                            textAlign: isMobile ? "center" : "left"
+                            gap: isMobile ? "0.5rem" : "1rem",
+                            textAlign: isMobile ? "center" : "left",
+                            marginBottom: isMobile ? "2rem" : "3rem"
                         }}>
-                            <h2 style={styles.sectionHeading}>Featured Builds</h2>
-                            <a href="/projects" style={styles.textLink}>See all developments ↗</a>
+                            <h2 style={{...styles.sectionHeading, margin: 0, fontSize: isMobile ? "1.8rem" : "2.2rem"}}>Featured Builds</h2>
+                            <a href="/projects" className="arrow-link" style={styles.textLink}>
+                                See all developments &nbsp;<span>→</span>
+                            </a>
                         </div>
                         <div style={{
                             ...styles.projectsGrid,
-                            gridTemplateColumns: isMobile ? "1fr" : "1fr 1fr"
+                            gridTemplateColumns: isMobile ? "1fr" : "1fr 1fr",
+                            gap: isMobile ? "1.25rem" : "2rem"
                         }}>
                             {featuredProjects.map((project) => (
-                                <div key={project.id} style={styles.projectCard}>
+                                <div key={project.id} className="interactive-card" style={styles.projectCard}>
                                     <div>
                                         <span style={styles.projectTechText}>{project.technology}</span>
                                         <h3 style={styles.projectTitleText}>{project.title}</h3>
                                         <p style={styles.projectDescText}>{project.description}</p>
                                     </div>
-                                    <a href={project.githubUrl} target="_blank" rel="noreferrer" style={styles.cardLink}>
-                                        Analyze Repository Source ↗
+                                    <a href={project.githubUrl} target="_blank" rel="noreferrer" className="arrow-link" style={styles.cardLink}>
+                                        Analyze Repository Source &nbsp;<span>→</span>
                                     </a>
                                 </div>
                             ))}
@@ -161,11 +248,12 @@ const styles = {
     pageWrapper: {
         width: "100%",
         minHeight: "100vh",
-        backgroundColor: "#f5f5f7",
-        fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
+        backgroundColor: "#fafbfc",
+        fontFamily: "-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Roboto, sans-serif",
+        WebkitFontSmoothing: "antialiased"
     },
     container: {
-        maxWidth: "1200px",
+        maxWidth: "1120px",
         margin: "0 auto",
         boxSizing: "border-box",
     },
@@ -174,93 +262,102 @@ const styles = {
         display: "flex",
         justifyContent: "center",
         boxSizing: "border-box",
-        backgroundColor: "#ffffff"
+        backgroundColor: "#ffffff",
+        borderBottom: "1px solid #edf0f2"
     },
     heroContainer: {
-        maxWidth: "800px",
+        maxWidth: "760px",
         display: "flex",
         flexDirection: "column",
-        gap: "1.5rem"
+        gap: "1.5rem",
+        opacity: 0
     },
     badgeText: {
-        alignSelf: "flex-start",
-        fontSize: "0.85rem",
+        display: "inline-flex",
+        alignItems: "center",
+        gap: "0.5rem",
+        fontSize: "0.82rem",
         fontWeight: "600",
-        color: "#34c759",
-        backgroundColor: "#e8fdf0",
-        padding: "0.4rem 1rem",
-        borderRadius: "20px",
-        margin: "0 auto 0 0"
+        color: "#1a7330",
+        backgroundColor: "#e6f7ec",
+        padding: "0.45rem 1rem",
+        borderRadius: "30px",
+        letterSpacing: "0.1px"
+    },
+    badgePulse: {
+        width: "6px",
+        height: "6px",
+        backgroundColor: "#2cd15b",
+        borderRadius: "50%",
+        display: "inline-block"
     },
     mainTitle: {
         fontWeight: "800",
-        color: "#1d1d1f",
-        lineHeight: "1.1",
-        margin: 0
+        color: "#111112",
+        lineHeight: "1.15",
+        margin: 0,
+        letterSpacing: "-0.03em"
     },
     bioText: {
-        color: "#515154",
-        lineHeight: "1.6",
-        margin: 0
+        color: "#4f4f53",
+        lineHeight: "1.65",
+        margin: 0,
+        fontWeight: "400"
     },
     ctaGroup: {
         display: "flex",
-        gap: "1rem",
-        marginTop: "1rem"
+        marginTop: "0.5rem"
     },
     primaryBtn: {
-        backgroundColor: "#1d1d1f",
         color: "#ffffff",
-        padding: "0.9rem 2rem",
-        borderRadius: "30px",
+        padding: "0.95rem 2rem",
+        borderRadius: "12px",
         textDecoration: "none",
         fontWeight: "600",
-        fontSize: "0.95rem",
+        fontSize: "0.96rem",
         textAlign: "center",
-        transition: "background-color 0.2s ease"
+        border: "none",
+        boxShadow: "0 4px 12px rgba(0, 102, 204, 0.15)"
     },
     resumeBtn: {
         color: "#ffffff",
         border: "none",
-        padding: "0.9rem 2rem",
-        borderRadius: "30px",
+        padding: "0.95rem 2rem",
+        borderRadius: "12px",
         fontWeight: "600",
-        fontSize: "0.95rem",
-        textAlign: "center",
-        transition: "all 0.2s ease"
+        fontSize: "0.96rem",
+        textAlign: "center"
     },
     secondaryBtn: {
         backgroundColor: "#ffffff",
         color: "#1d1d1f",
         border: "1px solid #d2d2d7",
-        padding: "0.9rem 2rem",
-        borderRadius: "30px",
+        padding: "0.95rem 2rem",
+        borderRadius: "12px",
         textDecoration: "none",
         fontWeight: "600",
-        fontSize: "0.95rem",
-        textAlign: "center",
-        transition: "all 0.2s ease"
+        fontSize: "0.96rem",
+        textAlign: "center"
     },
     skillsSection: {
         width: "100%",
         boxSizing: "border-box"
     },
     sectionHeading: {
-        fontSize: "2rem",
-        fontWeight: "700",
+        fontWeight: "800",
         color: "#1d1d1f",
-        margin: "0 0 2rem 0"
+        margin: "0 0 2rem 0",
+        letterSpacing: "-0.02em"
     },
     skillsGrid: {
-        display: "grid",
-        gap: "2rem"
+        display: "grid"
     },
     skillCard: {
         backgroundColor: "#ffffff",
-        padding: "2rem",
-        borderRadius: "20px",
-        boxShadow: "0 4px 20px rgba(0, 0, 0, 0.02)",
-        border: "1px solid rgba(0, 0, 0, 0.02)"
+        padding: "2.25rem 1.75rem",
+        borderRadius: "16px",
+        boxShadow: "0 4px 12px rgba(0, 0, 0, 0.01)",
+        border: "1px solid #eaeef1"
     },
     skillIcon: {
         fontSize: "2rem",
@@ -273,21 +370,21 @@ const styles = {
         margin: "0 0 0.5rem 0"
     },
     skillDesc: {
-        fontSize: "0.95rem",
-        color: "#86868b",
-        lineHeight: "1.5",
+        fontSize: "0.96rem",
+        color: "#66666b",
+        lineHeight: "1.55",
         margin: 0
     },
     featuredSection: {
         width: "100%",
         boxSizing: "border-box",
-        backgroundColor: "#ffffff"
+        backgroundColor: "#ffffff",
+        borderTop: "1px solid #edf0f2"
     },
     sectionHeaderRow: {
         display: "flex",
         justifyContent: "space-between",
-        alignItems: "center",
-        marginBottom: "2rem"
+        alignItems: "center"
     },
     textLink: {
         color: "#0066cc",
@@ -296,42 +393,42 @@ const styles = {
         fontSize: "1rem"
     },
     projectsGrid: {
-        display: "grid",
-        gap: "2rem"
+        display: "grid"
     },
     projectCard: {
-        backgroundColor: "#f5f5f7",
-        padding: "2rem",
-        borderRadius: "20px",
+        backgroundColor: "#f7f9fa",
+        padding: "2.25rem 1.75rem",
+        borderRadius: "16px",
         display: "flex",
         flexDirection: "column",
         justifyContent: "space-between",
-        gap: "2rem"
+        gap: "2.25rem",
+        border: "1px solid #eaeef1"
     },
     projectTechText: {
-        fontSize: "0.8rem",
+        fontSize: "0.75rem",
         fontWeight: "700",
         color: "#0066cc",
         textTransform: "uppercase",
-        letterSpacing: "0.5px"
+        letterSpacing: "0.8px"
     },
     projectTitleText: {
-        fontSize: "1.4rem",
+        fontSize: "1.45rem",
         fontWeight: "700",
         color: "#1d1d1f",
         margin: "0.5rem 0"
     },
     projectDescText: {
-        fontSize: "1rem",
-        color: "#515154",
-        lineHeight: "1.5",
+        fontSize: "0.98rem",
+        color: "#4f4f53",
+        lineHeight: "1.55",
         margin: 0
     },
     cardLink: {
         color: "#1d1d1f",
         textDecoration: "none",
         fontWeight: "600",
-        fontSize: "0.95rem"
+        fontSize: "0.96rem"
     }
 };
 
