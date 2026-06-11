@@ -29,12 +29,24 @@ function Contact() {
             return;
         }
 
-        const nameRegex = /^[A-Za-z\s]{2,50}$/;
-        if (!nameRegex.test(cleanName)) {
-            setValidationError("⚠️ Invalid Name: Please use letters only (minimum 2 characters).");
-            return;
-        }
+    const nameRegex = /^[A-Za-z\s.'-]{2,50}$/;
 
+if (!nameRegex.test(cleanName.trim())) {
+    setValidationError(
+        "⚠️ Please enter a valid name (2-50 characters, letters only)."
+    );
+    return;
+}
+
+const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
+
+if (!emailRegex.test(cleanEmail.trim())) {
+    setValidationError(
+        "⚠️ Please enter a valid email address."
+    );
+    return;
+}
+       
         const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
         if (!emailRegex.test(cleanEmail)) {
             setValidationError("⚠️ Invalid Email Layout: Please provide an authentic email address.");
