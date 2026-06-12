@@ -33,7 +33,7 @@ function Navbar() {
         fontSize: isMobile ? "1.05rem" : "0.92rem", // Clean, deliberate typography spacing
         letterSpacing: "-0.1px",
         transition: "all 0.25s cubic-bezier(0.25, 1, 0.5, 1)",
-        color: isActive ? "#0066cc" : "#515154", // Premium soft charcoal for idle, corporate blue for active
+        color: isActive ? "#4f46e5" : "#515154", // Premium soft charcoal for idle, corporate blue for active
         fontWeight: isActive ? "600" : "500",
         padding: isMobile ? "0.75rem 0" : "0.5rem 0",
         width: isMobile ? "100%" : "auto",
@@ -57,7 +57,7 @@ function Navbar() {
                 {/* Brand Logo Identity */}
                 <div style={styles.logoContainer}>
                     <NavLink to="/" style={styles.logo}>
-                        Sanjay TechHub <span style={{ color: "#0066cc", marginLeft: "1px" }}>.</span>
+                        Sanjay TechHub <span style={{ color: "#4f46e5", marginLeft: "1px" }}>.</span>
                     </NavLink>
                 </div>
 

@@ -209,7 +209,7 @@ const styles = {
     titleTag: {
         fontSize: "1.1rem",
         fontWeight: "600",
-        color: "#0066cc", 
+        color: "#4f46e5", 
         margin: "0 0 1.25rem 0",
         textTransform: "uppercase",
         letterSpacing: "1px",
@@ -265,7 +265,7 @@ const styles = {
     skillDot: {
         width: "6px",
         height: "6px",
-        backgroundColor: "#0066cc",
+        backgroundColor: "#4f46e5",
         borderRadius: "50%",
     },
     strengthsSection: {
@@ -334,7 +334,7 @@ const styles = {
     durationBadge: {
         fontSize: "0.8rem",
         fontWeight: "600",
-        color: "#0066cc",
+        color: "#0ced62",
         backgroundColor: "#e8f2ff",
         padding: "0.2rem 0.6rem",
         borderRadius: "6px",

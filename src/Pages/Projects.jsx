@@ -18,7 +18,7 @@ function Projects() {
             <div style={styles.container}>
                 <div style={styles.header}>
                     <h1 style={styles.title}>
-                        Development Projects<span style={{ color: "#0066cc" }}>.</span>
+                        Development Projects<span style={{ color: "#4f46e5" }}>.</span>
                     </h1>
                     <p style={styles.subtitle}>
                         A selection of applications showcasing problem-solving, system design, and software engineering skills.
@@ -142,7 +142,7 @@ const styles = {
         alignItems: "center",
         fontSize: "0.9rem",
         fontWeight: "600",
-        color: "#0066cc",
+        color: "#4f46e5",
         textDecoration: "none",
         transition: "color 0.2s ease",
     },

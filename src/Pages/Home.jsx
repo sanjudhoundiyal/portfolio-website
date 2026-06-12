@@ -53,7 +53,7 @@ function Home() {
 
         setIsDownloading(true);
         try {
-            const response = await fetch("http://localhost:8080/api/resume/download");
+            const response = await fetch("https://portfolio-website-6-w0fn.onrender.com/api/resume/download")
             if (!response.ok) throw new Error("Download pipeline rejected.");
 
             const blob = await response.blob();
@@ -332,7 +332,7 @@ const styles = {
     },
     subTitle: {
         fontWeight: "700",
-        color: "#4f46e5",
+        color: "#4f46e5", 
         margin: "-0.5rem 0 0 0",
         letterSpacing: "-0.02em"
     },
