@@ -140,7 +140,7 @@ function Home() {
                     <div style={{...styles.badgeText, alignSelf: isMobile ? "center" : "flex-start"}}>
                         <span className="pulse-active" style={styles.badgePulse}></span> 
                         <span style={{color: "#475569", fontWeight: "500"}}>System Status:</span> Operational 
-                        <span style={styles.badgeDivider}>|</span> Load: Optimal
+                       
                     </div>
                     
                     <h1 style={{...styles.mainTitle, fontSize: isMobile ? "2.6rem" : "4.5rem", textAlign: isMobile ? "center" : "left"}}>
