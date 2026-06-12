@@ -40,16 +40,15 @@ if (!nameRegex.test(cleanName.trim())) {
     return;
 }
 
-const emailRegex =
-/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+
+const emailRegex = /^[a-zA-Z0-9._%+-]+@gmail\.com$/i;
 
 if (!emailRegex.test(cleanEmail.trim())) {
     setValidationError(
-        "⚠️ Please enter a valid email address."
+        "⚠️ Please enter a valid Gmail address."
     );
     return;
-}
-       
+}   
         
 
         if (cleanMessage.length < 10) {

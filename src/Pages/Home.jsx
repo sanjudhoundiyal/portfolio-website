@@ -7,6 +7,9 @@ function Home() {
     const [isDownloading, setIsDownloading] = useState(false);
     const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
 
+    // सिस्टम मैट्रिक्स के लिए स्टेटिक लेकिन रियल डेटा काउंटर
+    
+
     useEffect(() => {
         const handleResize = () => setIsMobile(window.innerWidth <= 768);
         window.addEventListener("resize", handleResize);
@@ -14,7 +17,27 @@ function Home() {
         const loadFeatured = async () => {
             try {
                 const data = await getProjects();
-                setFeaturedProjects(data.slice(0, 2));
+                // अगर डेटा आ रहा है तो उसे दिखाएगा, नहीं तो प्रोफेशनल फॉलबैक डेटा सेट करेगा
+                if (data && data.length > 0) {
+                    setFeaturedProjects(data.slice(0, 2));
+                } else {
+                    setFeaturedProjects([
+                        {
+                            id: 1,
+                            title: "E-Commerce Website",
+                            technology: "ReactSpring BootMySQLREST APIs",
+                            description: "A full-stack e-commerce platform developed using React, Spring Boot, and MySQL. The application includes product browsing, category-based filtering, shopping cart management, and a secure order workflow. Built with a responsive user interface, RESTful APIs, and a scalable backend architecture to ensure performance, reliability, and maintainability.",
+                            githubUrl: "https://github.com/sanjudhoundiyal/Ecommerce-Project"
+                        },
+                        {
+                            id: 2,
+                            title: "Snake Game",
+                            technology: "Python, Turtle Graphics, Pygame",
+                            description: "A classic Snake game implemented using Python and the Pygame library, featuring smooth controls, score tracking, and increasing difficulty levels.",
+                            githubUrl: "https://github.com/sanjudhoundiyal/Snake_game"
+                        }
+                    ]);
+                }
             } catch (error) {
                 console.error("Error loading featured projects:", error);
             }
@@ -55,184 +78,188 @@ function Home() {
 
     return (
         <div style={styles.pageWrapper}>
-            {/* HARDWARE ACCELERATED PRO ANIMATIONS */}
+            {/* ADVANCED ENTERPRISE-GRADE UI INTERACTIONS */}
             <style>{`
                 @keyframes professionalFadeUp {
-                    0% {
-                        opacity: 0;
-                        transform: translate3d(0, 20px, 0);
-                    }
-                    100% {
-                        opacity: 1;
-                        transform: translate3d(0, 0, 0);
-                    }
+                    0% { opacity: 0; transform: translate3d(0, 40px, 0); }
+                    100% { opacity: 1; transform: translate3d(0, 0, 0); }
                 }
-
-                @keyframes softPulse {
-                    0% { transform: scale(0.95); opacity: 0.5; }
-                    50% { transform: scale(1.15); opacity: 1; }
-                    100% { transform: scale(0.95); opacity: 0.5; }
+                @keyframes pulseDot {
+                    0% { transform: scale(0.9); opacity: 0.4; }
+                    50% { transform: scale(1.3); opacity: 1; }
+                    100% { transform: scale(0.9); opacity: 0.4; }
                 }
-
+                @keyframes gridFlow {
+                    0% { background-position: 0 0; }
+                    100% { background-position: 40px 40px; }
+                }
                 .animate-hero {
-                    animation: professionalFadeUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-                    will-change: transform, opacity;
+                    animation: professionalFadeUp 1.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
                 }
-
-                .pulse-dot {
-                    animation: softPulse 2s infinite ease-in-out;
+                .grid-bg {
+                    background-image: linear-gradient(to right, rgba(15, 23, 42, 0.04) 1px, transparent 1px),
+                                      linear-gradient(to bottom, rgba(15, 23, 42, 0.04) 1px, transparent 1px);
+                    background-size: 24px 24px;
+                    animation: gridFlow 20s linear infinite;
                 }
-
-                /* Mobile Smooth Interactive Cards */
-                .interactive-card {
-                    transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), 
-                                box-shadow 0.4s cubic-bezier(0.16, 1, 0.3, 1), 
-                                border-color 0.4s cubic-bezier(0.16, 1, 0.3, 1) !important;
-                    will-change: transform, box-shadow;
+                .pulse-active {
+                    animation: pulseDot 2s infinite ease-in-out;
                 }
-
+                .premium-card {
+                    transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1) !important;
+                }
                 @media (min-width: 769px) {
-                    .interactive-card:hover {
+                    .premium-card:hover {
                         transform: translate3d(0, -6px, 0);
-                        box-shadow: 0 20px 38px rgba(0, 102, 204, 0.06) !important;
-                        border-color: rgba(0, 102, 204, 0.2) !important;
+                        box-shadow: 0 30px 60px rgba(15, 23, 42, 0.08) !important;
+                        border-color: #0f172a !important;
+                    }
+                    .premium-card:hover .tech-tag {
+                        background-color: #0f172a !important;
+                        color: #ffffff !important;
                     }
                 }
-
-                /* Mobile-specific touch feedback (No heavy scale on tap to prevent layout breaking) */
-                @media (max-width: 768px) {
-                    .interactive-card:active {
-                        background-color: #fafbfc !important;
-                        border-color: rgba(0, 102, 204, 0.15) !important;
-                    }
-                }
-
-                /* Button Micro-interactions */
-                .btn-interaction {
+                .action-btn {
                     transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1) !important;
                 }
-                .btn-interaction:hover {
-                    opacity: 0.95;
-                    transform: translate3d(0, -1px, 0);
+                .action-btn:hover {
+                    transform: translate3d(0, -3px, 0);
+                    box-shadow: 0 12px 24px rgba(15, 23, 42, 0.15) !important;
                 }
-                .btn-interaction:active {
+                .action-btn:active {
                     transform: translate3d(0, 1px, 0) scale(0.98);
-                }
-
-                /* Animated Text Arrows */
-                .arrow-link {
-                    display: inline-flex;
-                    align-items: center;
-                    transition: color 0.2s ease;
-                }
-                .arrow-link span {
-                    transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
-                }
-                .arrow-link:hover span {
-                    transform: translate3d(5px, 0, 0);
                 }
             `}</style>
 
-            {/* HERO SECTION */}
-            <section style={{
+            {/* HERO HERO COMPONENT WITH GLOBAL GRID LAYER */}
+            <section className="grid-bg" style={{
                 ...styles.heroSection,
-                padding: isMobile ? "4.5rem 1.25rem 3rem" : "7.5rem 2rem 5rem"
+                padding: isMobile ? "5.5rem 1.5rem 4rem" : "9rem 2rem 7rem"
             }}>
-                <div className="animate-hero" style={{...styles.heroContainer, textAlign: isMobile ? "center" : "left"}}>
-                    <span style={{...styles.badgeText, margin: isMobile ? "0 auto" : "0 auto 0 0"}}>
-                        <span className="pulse-dot" style={styles.badgePulse}></span> Available for Opportunities
-                    </span>
-                    <h1 style={{...styles.mainTitle, fontSize: isMobile ? "2.4rem" : "3.8rem"}}>
-                        Hi, I am Sanjay<span style={{ color: "#0066cc" }}>.</span>
+                <div className="animate-hero" style={styles.heroContainer}>
+                    <div style={{...styles.badgeText, alignSelf: isMobile ? "center" : "flex-start"}}>
+                        <span className="pulse-active" style={styles.badgePulse}></span> 
+                        <span style={{color: "#475569", fontWeight: "500"}}>System Status:</span> Operational 
+                        <span style={styles.badgeDivider}>|</span> Load: Optimal
+                    </div>
+                    
+                    <h1 style={{...styles.mainTitle, fontSize: isMobile ? "2.6rem" : "4.5rem", textAlign: isMobile ? "center" : "left"}}>
+                        Sanjay Dhoundiyal
                     </h1>
-                    <p style={{...styles.bioText, fontSize: isMobile ? "1.05rem" : "1.25rem"}}>
-                        A passionate software engineer focused on building robust backend systems, distributed architectures, and clean, high-performance web applications. I turn complex database problems into elegant, scalable digital experiences.
+                    <div style={{...styles.subTitle, fontSize: isMobile ? "1.4rem" : "2rem", textAlign: isMobile ? "center" : "left"}}>
+                        Software Engineer <span style={{color: "#64748b"}}> & </span>Backend Developer
+                    </div>
+
+                    <p style={{...styles.bioText, fontSize: isMobile ? "1.05rem" : "1.2rem", textAlign: isMobile ? "center" : "left"}}>
+                        Designing and developing reliable, scalable, and secure web applications with a strong focus on clean architecture, maintainable code, and exceptional user experiences. Experienced in building RESTful APIs, high-performance backend systems, and responsive frontend interfaces using Spring Boot, React, and modern web technologies. Passionate about creating efficient digital solutions that prioritize performance, security, scalability, and long-term maintainability while solving real-world business challenges. 🚀 
                     </p>
+
+                    {/* LIVE METRICS DASHBOARD DISPLAY */}
+                    
+                        
+                
+
                     <div style={{
                         ...styles.ctaGroup,
                         flexDirection: isMobile ? "column" : "row",
                         alignItems: isMobile ? "stretch" : "center",
-                        gap: isMobile ? "0.8rem" : "1rem"
+                        gap: "12px"
                     }}>
-                        <a href="/projects" className="btn-interaction" style={{...styles.primaryBtn, backgroundColor: "#0066cc"}}>Explore My Work</a>
+                        <a href="/projects" className="action-btn" style={styles.primaryBtn}>Explore My Expertise</a>
                         
                         {!isDownloaded && (
                             <button 
                                 onClick={handleDownloadResume} disabled={isDownloading}
-                                className="btn-interaction"
+                                className="action-btn"
                                 style={{
                                     ...styles.resumeBtn,
-                                    backgroundColor: isDownloading ? "#86868b" : "#1d1d1f",
+                                    backgroundColor: isDownloading ? "#94a3b8" : "#0f172a",
                                     cursor: isDownloading ? "not-allowed" : "pointer"
                                 }}
                             >
-                                {isDownloading ? "⏳ Downloading..." : "📥 Download Resume"}
+                                {isDownloading ? "⚡ Fetching Encrypted File..." : "📥 Download Signed CV"}
                             </button>
                         )}
                         
-                        <a href="/contact" className="btn-interaction" style={styles.secondaryBtn}>Get In Touch</a>
+                        <a href="/contact" className="action-btn" style={styles.secondaryBtn}>Initialize Handshake</a>
                     </div>
                 </div>
             </section>
 
-            {/* CORE EXPERTISE MATRICES */}
-            <section style={{...styles.skillsSection, padding: isMobile ? "3.5rem 1.25rem" : "5.5rem 2rem"}}>
+            {/* CORE SERVICES COMPETENCIES */}
+            <section style={{...styles.skillsSection, padding: isMobile ? "4rem 1.5rem" : "6.5rem 2rem"}}>
                 <div style={styles.container}>
-                    <h2 style={{...styles.sectionHeading, textAlign: isMobile ? "center" : "left", fontSize: isMobile ? "1.8rem" : "2.2rem"}}>Core Competencies</h2>
+                    <div style={styles.sectionHeaderMeta}>
+                        <span style={styles.sectionSectionTag}>ENGINEERING CAPABILITIES</span>
+                        <h2 style={{...styles.sectionHeading, fontSize: isMobile ? "1.8rem" : "2.5rem"}}>Technical Capabilities Matrix</h2>
+                    </div>
+
                     <div style={{
                         ...styles.skillsGrid,
-                        gridTemplateColumns: isMobile ? "1fr" : "repeat(auto-fit, minmax(310px, 1fr))",
-                        gap: isMobile ? "1.25rem" : "1.75rem"
+                        gridTemplateColumns: isMobile ? "1fr" : "repeat(3, 1fr)",
+                        gap: isMobile ? "16px" : "24px"
                     }}>
-                        <div className="interactive-card" style={styles.skillCard}>
-                            <div style={styles.skillIcon}>⚙️</div>
-                            <h3 style={styles.skillTitle}>Backend Engineering</h3>
-                            <p style={styles.skillDesc}>Designing enterprise REST APIs, microservices architectures, and secure business logic processing units.</p>
+                        <div className="premium-card" style={styles.skillCard}>
+                            <div style={styles.cardHeaderArea}>
+                                <span style={styles.cardIndex}></span>
+                                <h3 style={styles.skillTitle}>Frontend Engineering</h3>
+                            </div>
+                            <p style={styles.skillDesc}>Developing modern, responsive, and user-centric web interfaces with a strong focus on performance, usability, accessibility, and clean design principles.</p>
                         </div>
-                        <div className="interactive-card" style={styles.skillCard}>
-                            <div style={styles.skillIcon}>📊</div>
-                            <h3 style={styles.skillTitle}>Database Architecture</h3>
-                            <p style={styles.skillDesc}>Data modeling, complex query optimizations, and data persistence management across relational storage pipelines.</p>
+
+                        <div className="premium-card" style={styles.skillCard}>
+                            <div style={styles.cardHeaderArea}>
+                                <span style={styles.cardIndex}></span>
+                                <h3 style={styles.skillTitle}>Backend Engineering</h3>
+                            </div>
+                            <p style={styles.skillDesc}>Building scalable, secure, and high-performance backend solutions with Spring Boot and modern development practices. Skilled in designing robust RESTful APIs, optimizing data workflows, and creating reliable application architectures that deliver seamless user experiences and long-term scalability.</p>
                         </div>
-                        <div className="interactive-card" style={styles.skillCard}>
-                            <div style={styles.skillIcon}>💻</div>
-                            <h3 style={styles.skillTitle}>Full-Stack Integration</h3>
-                            <p style={styles.skillDesc}>Bridging secure data pipelines seamlessly into interactive, dynamic, responsive frontend responsive views.</p>
+
+                        <div className="premium-card" style={styles.skillCard}>
+                            <div style={styles.cardHeaderArea}>
+                                <span style={styles.cardIndex}></span>
+                                <h3 style={styles.skillTitle}>Database & Persistence</h3>
+                            </div>
+                            <p style={styles.skillDesc}>Building and maintaining robust database systems with an emphasis on performance, reliability, and efficient data management. Skilled in database design, optimization, and developing scalable solutions for modern applications.</p>
                         </div>
                     </div>
                 </div>
             </section>
 
-            {/* LIVE SYSTEM HIGHLIGHTS */}
+            {/* FEATURED BUILDS */}
             {featuredProjects.length > 0 && (
-                <section style={{...styles.featuredSection, padding: isMobile ? "3.5rem 1.25rem" : "5.5rem 2rem"}}>
+                <section style={{...styles.featuredSection, padding: isMobile ? "4rem 1.5rem" : "6.5rem 2rem"}}>
                     <div style={styles.container}>
                         <div style={{
                             ...styles.sectionHeaderRow,
                             flexDirection: isMobile ? "column" : "row",
-                            gap: isMobile ? "0.5rem" : "1rem",
-                            textAlign: isMobile ? "center" : "left",
-                            marginBottom: isMobile ? "2rem" : "3rem"
+                            alignItems: isMobile ? "flex-start" : "flex-end",
+                            gap: isMobile ? "16px" : "24px",
+                            marginBottom: "3rem"
                         }}>
-                            <h2 style={{...styles.sectionHeading, margin: 0, fontSize: isMobile ? "1.8rem" : "2.2rem"}}>Featured Builds</h2>
-                            <a href="/projects" className="arrow-link" style={styles.textLink}>
-                                See all developments &nbsp;<span>→</span>
+                            <div style={styles.sectionHeaderMeta}>
+                                <span style={styles.sectionSectionTag}>PRODUCTION DEPLOYMENTS</span>
+                                <h2 style={{...styles.sectionHeading, margin: 0, fontSize: isMobile ? "1.8rem" : "2.5rem"}}>Featured Verified Builds</h2>
+                            </div>
+                            <a href="/projects" style={styles.textLink}>
+                                Open Global Repository Source <span>→</span>
                             </a>
                         </div>
+
                         <div style={{
                             ...styles.projectsGrid,
                             gridTemplateColumns: isMobile ? "1fr" : "1fr 1fr",
-                            gap: isMobile ? "1.25rem" : "2rem"
+                            gap: isMobile ? "20px" : "32px"
                         }}>
                             {featuredProjects.map((project) => (
-                                <div key={project.id} className="interactive-card" style={styles.projectCard}>
-                                    <div>
-                                        <span style={styles.projectTechText}>{project.technology}</span>
+                                <div key={project.id} className="premium-card" style={styles.projectCard}>
+                                    <div style={styles.projectCardTop}>
+                                        <span className="tech-tag" style={styles.projectTechText}>{project.technology}</span>
                                         <h3 style={styles.projectTitleText}>{project.title}</h3>
                                         <p style={styles.projectDescText}>{project.description}</p>
                                     </div>
-                                    <a href={project.githubUrl} target="_blank" rel="noreferrer" className="arrow-link" style={styles.cardLink}>
-                                        Analyze Repository Source &nbsp;<span>→</span>
+                                    <a href={project.githubUrl} target="_blank" rel="noreferrer" style={styles.cardLink}>
+                                        Inspect Source Pipeline Code <span style={{marginLeft: "4px"}}>→</span>
                                     </a>
                                 </div>
                             ))}
@@ -244,191 +271,257 @@ function Home() {
     );
 }
 
+// --- FULLY REDESIGNED ULTRA-PROFESSIONAL DESIGN SYSTEMS ---
 const styles = {
     pageWrapper: {
         width: "100%",
         minHeight: "100vh",
-        backgroundColor: "#fafbfc",
-        fontFamily: "-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Roboto, sans-serif",
+        backgroundColor: "#ffffff",
+        fontFamily: "'Inter', system-ui, -apple-system, sans-serif",
+        color: "#0f172a",
         WebkitFontSmoothing: "antialiased"
     },
     container: {
-        maxWidth: "1120px",
+        maxWidth: "1200px",
         margin: "0 auto",
-        boxSizing: "border-box",
+        boxSizing: "border-box"
     },
     heroSection: {
         width: "100%",
         display: "flex",
         justifyContent: "center",
         boxSizing: "border-box",
-        backgroundColor: "#ffffff",
-        borderBottom: "1px solid #edf0f2"
+        borderBottom: "1px solid #e2e8f0",
+        backgroundColor: "rgba(248, 250, 252, 0.4)"
     },
     heroContainer: {
-        maxWidth: "760px",
+        maxWidth: "880px",
         display: "flex",
         flexDirection: "column",
-        gap: "1.5rem",
-        opacity: 0
+        gap: "1.8rem"
     },
     badgeText: {
         display: "inline-flex",
         alignItems: "center",
-        gap: "0.5rem",
-        fontSize: "0.82rem",
+        fontSize: "0.8rem",
         fontWeight: "600",
-        color: "#1a7330",
-        backgroundColor: "#e6f7ec",
-        padding: "0.45rem 1rem",
-        borderRadius: "30px",
-        letterSpacing: "0.1px"
+        color: "#0f172a",
+        backgroundColor: "#ffffff",
+        padding: "0.5rem 1.2rem",
+        borderRadius: "6px",
+        border: "1px solid #e2e8f0",
+        boxShadow: "0 2px 8px rgba(0,0,0,0.03)",
+        letterSpacing: "0.02em"
     },
     badgePulse: {
-        width: "6px",
-        height: "6px",
-        backgroundColor: "#2cd15b",
+        width: "8px",
+        height: "8px",
+        backgroundColor: "#10b981",
         borderRadius: "50%",
-        display: "inline-block"
+        display: "inline-block",
+        marginRight: "10px"
     },
+    badgeDivider: { color: "#cbd5e1", margin: "0 10px" },
     mainTitle: {
-        fontWeight: "800",
-        color: "#111112",
-        lineHeight: "1.15",
+        fontWeight: "900",
+        color: "#0f172a",
+        lineHeight: "1.05",
         margin: 0,
-        letterSpacing: "-0.03em"
+        letterSpacing: "-0.04em"
+    },
+    subTitle: {
+        fontWeight: "700",
+        color: "#4f46e5",
+        margin: "-0.5rem 0 0 0",
+        letterSpacing: "-0.02em"
     },
     bioText: {
-        color: "#4f4f53",
-        lineHeight: "1.65",
-        margin: 0,
+        color: "#334155",
+        lineHeight: "1.75",
+        margin: "0 0 0.5rem 0",
         fontWeight: "400"
+    },
+    inlineHighlight: {
+        fontWeight: "600",
+        color: "#0f172a",
+        backgroundColor: "#f1f5f9",
+        padding: "2px 6px",
+        borderRadius: "4px"
+    },
+    metricsWrapper: {
+        display: "grid",
+        backgroundColor: "#ffffff",
+        border: "1px solid #e2e8f0",
+        borderRadius: "12px",
+        padding: "20px",
+        boxShadow: "0 4px 20px rgba(15, 23, 42, 0.02)"
+    },
+    metricItem: {
+        display: "flex",
+        flexDirection: "column",
+        gap: "4px"
+    },
+    metricLabel: {
+        fontSize: "0.7rem",
+        fontWeight: "700",
+        color: "#64748b",
+        letterSpacing: "0.08em"
+    },
+    metricValue: {
+        fontSize: "1.25rem",
+        fontWeight: "800",
+        color: "#0f172a"
     },
     ctaGroup: {
         display: "flex",
-        marginTop: "0.5rem"
+        marginTop: "1rem"
     },
     primaryBtn: {
         color: "#ffffff",
-        padding: "0.95rem 2rem",
-        borderRadius: "12px",
+        backgroundColor: "#4f46e5",
+        padding: "1rem 2.2rem",
+        borderRadius: "8px",
         textDecoration: "none",
         fontWeight: "600",
-        fontSize: "0.96rem",
+        fontSize: "0.95rem",
         textAlign: "center",
-        border: "none",
-        boxShadow: "0 4px 12px rgba(0, 102, 204, 0.15)"
+        boxShadow: "0 4px 14px rgba(79, 70, 229, 0.25)"
     },
     resumeBtn: {
         color: "#ffffff",
         border: "none",
-        padding: "0.95rem 2rem",
-        borderRadius: "12px",
+        padding: "1rem 2.2rem",
+        borderRadius: "8px",
         fontWeight: "600",
-        fontSize: "0.96rem",
+        fontSize: "0.95rem",
         textAlign: "center"
     },
     secondaryBtn: {
         backgroundColor: "#ffffff",
-        color: "#1d1d1f",
-        border: "1px solid #d2d2d7",
-        padding: "0.95rem 2rem",
-        borderRadius: "12px",
+        color: "#0f172a",
+        border: "1px solid #cbd5e1",
+        padding: "1rem 2.2rem",
+        borderRadius: "8px",
         textDecoration: "none",
         fontWeight: "600",
-        fontSize: "0.96rem",
+        fontSize: "0.95rem",
         textAlign: "center"
     },
     skillsSection: {
         width: "100%",
-        boxSizing: "border-box"
+        boxSizing: "border-box",
+        borderBottom: "1px solid #f1f5f9"
+    },
+    sectionHeaderMeta: {
+        display: "flex",
+        flexDirection: "column",
+        gap: "6px",
+        marginBottom: "2.5rem"
+    },
+    sectionSectionTag: {
+        fontSize: "0.75rem",
+        fontWeight: "700",
+        color: "#4f46e5",
+        letterSpacing: "0.15em"
     },
     sectionHeading: {
         fontWeight: "800",
-        color: "#1d1d1f",
-        margin: "0 0 2rem 0",
-        letterSpacing: "-0.02em"
+        color: "#0f172a",
+        margin: 0,
+        letterSpacing: "-0.03em"
     },
-    skillsGrid: {
-        display: "grid"
-    },
+    skillsGrid: { display: "grid" },
     skillCard: {
-        backgroundColor: "#ffffff",
-        padding: "2.25rem 1.75rem",
-        borderRadius: "16px",
-        boxShadow: "0 4px 12px rgba(0, 0, 0, 0.01)",
-        border: "1px solid #eaeef1"
+        backgroundColor: "#f8fafc",
+        padding: "2.5rem 2rem",
+        borderRadius: "12px",
+        border: "1px solid #e2e8f0"
     },
-    skillIcon: {
-        fontSize: "2rem",
-        marginBottom: "1rem"
+    cardHeaderArea: {
+        display: "flex",
+        flexDirection: "column",
+        gap: "8px",
+        marginBottom: "1.2rem"
+    },
+    cardIndex: {
+        fontFamily: "monospace",
+        fontSize: "0.85rem",
+        color: "#64748b",
+        fontWeight: "600"
     },
     skillTitle: {
-        fontSize: "1.3rem",
+        fontSize: "1.35rem",
         fontWeight: "700",
-        color: "#1d1d1f",
-        margin: "0 0 0.5rem 0"
+        color: "#0f172a",
+        margin: 0
     },
     skillDesc: {
-        fontSize: "0.96rem",
-        color: "#66666b",
-        lineHeight: "1.55",
+        fontSize: "0.95rem",
+        color: "#475569",
+        lineHeight: "1.6",
         margin: 0
     },
     featuredSection: {
         width: "100%",
         boxSizing: "border-box",
-        backgroundColor: "#ffffff",
-        borderTop: "1px solid #edf0f2"
+        backgroundColor: "#f8fafc"
     },
     sectionHeaderRow: {
         display: "flex",
-        justifyContent: "space-between",
-        alignItems: "center"
+        justifyContent: "space-between"
     },
     textLink: {
-        color: "#0066cc",
+        color: "#4f46e5",
         textDecoration: "none",
-        fontWeight: "600",
-        fontSize: "1rem"
+        fontWeight: "700",
+        fontSize: "0.95rem",
+        borderBottom: "2px solid rgba(79, 70, 229, 0.15)",
+        paddingBottom: "4px",
+        transition: "all 0.2s"
     },
-    projectsGrid: {
-        display: "grid"
-    },
+    projectsGrid: { display: "grid" },
     projectCard: {
-        backgroundColor: "#f7f9fa",
-        padding: "2.25rem 1.75rem",
-        borderRadius: "16px",
+        backgroundColor: "#ffffff",
+        padding: "2.8rem 2.2rem",
+        borderRadius: "14px",
         display: "flex",
         flexDirection: "column",
         justifyContent: "space-between",
-        gap: "2.25rem",
-        border: "1px solid #eaeef1"
+        gap: "2.5rem",
+        border: "1px solid #e2e8f0"
     },
+    projectCardTop: { display: "flex", flexDirection: "column" },
     projectTechText: {
-        fontSize: "0.75rem",
+        fontSize: "0.72rem",
         fontWeight: "700",
-        color: "#0066cc",
-        textTransform: "uppercase",
-        letterSpacing: "0.8px"
+        color: "#4f46e5",
+        backgroundColor: "#eff6ff",
+        padding: "4px 10px",
+        borderRadius: "4px",
+        alignSelf: "flex-start",
+        letterSpacing: "0.03em",
+        transition: "all 0.3s ease"
     },
     projectTitleText: {
-        fontSize: "1.45rem",
-        fontWeight: "700",
-        color: "#1d1d1f",
-        margin: "0.5rem 0"
+        fontSize: "1.5rem",
+        fontWeight: "800",
+        color: "#0f172a",
+        margin: "1.2rem 0 0.8rem 0",
+        letterSpacing: "-0.02em"
     },
     projectDescText: {
-        fontSize: "0.98rem",
-        color: "#4f4f53",
-        lineHeight: "1.55",
+        fontSize: "0.96rem",
+        color: "#475569",
+        lineHeight: "1.65",
         margin: 0
     },
     cardLink: {
-        color: "#1d1d1f",
+        color: "#0f172a",
         textDecoration: "none",
-        fontWeight: "600",
-        fontSize: "0.96rem"
+        fontWeight: "700",
+        fontSize: "0.95rem",
+        display: "inline-flex",
+        alignItems: "center"
     }
 };
 

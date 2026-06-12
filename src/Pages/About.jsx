@@ -9,27 +9,66 @@ function About() {
         return () => window.removeEventListener("resize", handleResize);
     }, []);
 
-    const skills = [
-        "Java", "Spring Boot", "React", "JavaScript", 
-        "Python", "C++", "C", "HTML / CSS", 
-        "SQL", "Git & GitHub", "RESTful APIs"
-    ];
+const skills = [
+    "Java",
+    "Spring Boot",
+    "React",
+    "JavaScript",
+    "Python",
+    "C++",
+    "C",
+    "HTML5",
+    "CSS3",
+    "Bootstrap",
+    "SQL",
+    "MySQL",
+    "Hibernate",
+    "JPA",
+    "RESTful APIs",
+    "Git",
+    "GitHub",
+    "Postman",
+    "Maven",
+    "JSON",
+    "Database Management",
+    "Object-Oriented Programming (OOP)",
+    "Data Structures & Algorithms",
+    "Responsive Web Design",
+    "Frontend Development",
+    "Backend Development",
+    "Full-Stack Development",
+    "Problem Solving",
+    "Software Development",
+    "Version Control"
+];
+const educationTimeline = [
+    {
+        degree: "Bachelor of Computer Applications (BCA)",
+        institution: "IGNOU, New Delhi",
+        duration: "Completed",
+        description: "Acquired comprehensive knowledge in computer science fundamentals, software development, database systems, and web technologies while strengthening analytical and problem-solving skills."
+    }
+];
 
-    const educationTimeline = [
-        {
-            degree: "Bachelor of Computer Applications (BCA)",
-            institution: "Indira Gandhi National Open University (IGNOU)",
-            duration: "Completed",
-            description: "Established fundamental principles in data structures, object-oriented programming methodologies, and core web technologies."
-        }
-    ];
-
-    const strengths = [
-        "Punctual", "Hardworking", "Self-Motivated", "Quick Learner", 
-        "Team Player", "Responsible", "Disciplined", "Goal-Oriented", 
-        "Positive Attitude", "Time Management", "Attention to Detail", 
-        "Continuous Learner", "Technology Enthusiast", "Music Lover", "Cricket Enthusiast"
-    ];
+ const strengths = [
+    "Problem Solving",
+    "Analytical Thinking",
+    "Quick Learner",
+    "Team Collaboration",
+    "Adaptability",
+    "Communication Skills",
+    "Attention to Detail",
+    "Time Management",
+    "Critical Thinking",
+    "Leadership",
+    "Self-Motivated",
+    "Result-Oriented",
+    "Continuous Learning",
+    "Clean Code Practices",
+    "Software Development",
+    "Music Enthusiast",
+    "Cricket Enthusiast"
+];
 
     return (
         <section style={{
@@ -49,7 +88,7 @@ function About() {
                         <h1 style={{ ...styles.heading, fontSize: isMobile ? "2.2rem" : "2.8rem" }}>Sanjay Dhoundiyal</h1>
                         <p style={styles.titleTag}>Software Developer</p>
                         <p style={styles.bioText}>
-                            I am a Software Developer with a strong foundation in Java, Spring Boot, React.js, and Database Management. I enjoy building scalable web applications and solving real-world problems through technology.
+                           As a Software Developer, I specialize in designing and developing reliable, scalable, and user-focused applications. I am passionate about transforming ideas into practical solutions through clean code, modern development practices, and a commitment to continuous improvement
                         </p>
                     </div>
                 </div>
