@@ -139,8 +139,9 @@ function Home() {
                 <div className="animate-hero" style={styles.heroContainer}>
                     <div style={{...styles.badgeText, alignSelf: isMobile ? "center" : "flex-start"}}>
                         <span className="pulse-active" style={styles.badgePulse}></span> 
-                        
-                       
+                       <span style={{ color: "#475569", fontWeight: "500" }}>
+  Developer Status:
+</span> Available
                     </div>
                     
                     <h1 style={{...styles.mainTitle, fontSize: isMobile ? "2.6rem" : "4.5rem", textAlign: isMobile ? "center" : "left"}}>
