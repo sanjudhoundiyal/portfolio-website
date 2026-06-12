@@ -7,7 +7,7 @@ function Home() {
     const [isDownloading, setIsDownloading] = useState(false);
     const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
 
-    // सिस्टम मैट्रिक्स के लिए स्टेटिक लेकिन रियल डेटा काउंटर
+ 
     
 
     useEffect(() => {
@@ -17,7 +17,7 @@ function Home() {
         const loadFeatured = async () => {
             try {
                 const data = await getProjects();
-                // अगर डेटा आ रहा है तो उसे दिखाएगा, नहीं तो प्रोफेशनल फॉलबैक डेटा सेट करेगा
+                
                 if (data && data.length > 0) {
                     setFeaturedProjects(data.slice(0, 2));
                 } else {
