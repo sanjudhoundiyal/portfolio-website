@@ -141,7 +141,7 @@ function Home() {
                         <span className="pulse-active" style={styles.badgePulse}></span> 
                        <span style={{ color: "#475569", fontWeight: "500" }}>
   Developer Status:
-</span> Available
+</span> Available👨‍💻
                     </div>
                     
                     <h1 style={{...styles.mainTitle, fontSize: isMobile ? "2.6rem" : "4.5rem", textAlign: isMobile ? "center" : "left"}}>
