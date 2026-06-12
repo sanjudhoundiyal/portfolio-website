@@ -139,7 +139,7 @@ function Home() {
                 <div className="animate-hero" style={styles.heroContainer}>
                     <div style={{...styles.badgeText, alignSelf: isMobile ? "center" : "flex-start"}}>
                         <span className="pulse-active" style={styles.badgePulse}></span> 
-                        <span style={{color: "#475569", fontWeight: "500"}}>System Status:</span> Operational 
+                        
                        
                     </div>
                     
