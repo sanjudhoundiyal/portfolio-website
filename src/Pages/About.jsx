@@ -44,7 +44,6 @@ const skills = [
 const educationTimeline = [
     {
         degree: "Bachelor of Computer Applications (BCA)",
-        institution: "IGNOU, New Delhi",
         duration: "Completed",
         description: "Acquired comprehensive knowledge in computer science fundamentals, software development, database systems, and web technologies while strengthening analytical and problem-solving skills."
     }
@@ -120,7 +119,7 @@ const educationTimeline = [
                     <div style={styles.rightColumnContainer}>
                         <div>
                             <h2 style={styles.sectionTitle}>Educational Background</h2>
-                            <p style={styles.sectionSubtitle}>My structured computer science background and academic credentials.</p>
+                            <p style={styles.sectionSubtitle}>A solid educational foundation supporting my growth as a software developer. 🎓✨</p>
                             <div style={styles.timeline}>
                                 {educationTimeline.map((edu, index) => (
                                     <div key={index} style={styles.timelineItem}>
@@ -141,7 +140,7 @@ const educationTimeline = [
                         {/* Appended Personal Strengths Sub-section */}
                         <div style={styles.strengthsSection}>
                             <h2 style={styles.sectionTitle}>Personal Strengths</h2>
-                            <p style={styles.sectionSubtitle}>Core traits and values that shape my professional work ethic and daily life.</p>
+                            <p style={styles.sectionSubtitle}>Driven by curiosity, creativity, and a commitment to personal and professional growth..</p>
                             <div style={styles.skillsContainer}>
                                 {strengths.map((strength, index) => (
                                     <div key={index} style={styles.strengthBadge}>
